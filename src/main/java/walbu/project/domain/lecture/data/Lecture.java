@@ -1,16 +1,23 @@
 package walbu.project.domain.lecture.data;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import walbu.project.domain.enrollment.data.Enrollment;
 import walbu.project.domain.member.data.Member;
 
 @Entity
@@ -23,7 +30,7 @@ public class Lecture {
     @Column(name = "lecture_id")
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "member_id")
     private Member instructor;
 
@@ -35,6 +42,9 @@ public class Lecture {
 
     @Column(nullable = false)
     private Integer enrollmentCount;
+
+    @OneToMany(mappedBy = "lecture", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    List<Enrollment> enrollments = new ArrayList<>();
 
     public Lecture(Member instructor, String name, Integer price, Integer enrollmentCount) {
         this.instructor = instructor;

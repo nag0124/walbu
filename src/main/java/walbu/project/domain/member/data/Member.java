@@ -1,16 +1,24 @@
 package walbu.project.domain.member.data;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import walbu.project.domain.enrollment.data.Enrollment;
+import walbu.project.domain.lecture.data.Lecture;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -37,6 +45,12 @@ public class Member {
     @Enumerated(value = EnumType.STRING)
     @Column(nullable = false)
     private MemberType type;
+
+    @OneToMany(mappedBy = "instructor", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    List<Lecture> createdLectures = new ArrayList<>();
+
+    @OneToMany(mappedBy = "instructor", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    List<Enrollment> enrollments = new ArrayList<>();
 
     public Member(String name, String email, String password, String phoneNumber, MemberType type) {
         this.name = name;
