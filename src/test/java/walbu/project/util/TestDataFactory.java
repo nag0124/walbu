@@ -35,4 +35,13 @@ public class TestDataFactory {
         );
     }
 
+    public static Lecture createSameNameLecture(Lecture lecture) {
+        return new Lecture(
+                lecture.getInstructor(),
+                lecture.getName(),
+                20000,
+                20
+        );
+    }
+
 }
