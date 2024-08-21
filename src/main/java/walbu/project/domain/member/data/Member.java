@@ -49,7 +49,7 @@ public class Member {
     @OneToMany(mappedBy = "instructor", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     List<Lecture> createdLectures = new ArrayList<>();
 
-    @OneToMany(mappedBy = "instructor", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     List<Enrollment> enrollments = new ArrayList<>();
 
     public Member(String name, String email, String password, String phoneNumber, MemberType type) {
