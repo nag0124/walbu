@@ -1,5 +1,10 @@
 package walbu.project.util;
 
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import walbu.project.domain.enrollment.data.Enrollment;
 import walbu.project.domain.lecture.data.Lecture;
 import walbu.project.domain.member.data.Member;
 import walbu.project.domain.member.data.MemberType;
@@ -35,6 +40,18 @@ public class TestDataFactory {
         );
     }
 
+    public static List<Lecture> createLectures(Member instructor, int count) {
+        return IntStream.range(0, count)
+                .mapToObj(i ->
+                        new Lecture(
+                                instructor,
+                                "name" + i,
+                                10000,
+                                10
+                        ))
+                .collect(Collectors.toUnmodifiableList());
+    }
+
     public static Lecture createSameNameLecture(Lecture lecture) {
         return new Lecture(
                 lecture.getInstructor(),
@@ -42,6 +59,12 @@ public class TestDataFactory {
                 20000,
                 20
         );
+    }
+
+    public static List<Enrollment> createEnrollments(Member member, List<Lecture> lectures) {
+        return lectures.stream()
+                .map(lecture -> new Enrollment(member, lecture))
+                .collect(Collectors.toUnmodifiableList());
     }
 
 }
