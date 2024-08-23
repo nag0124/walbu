@@ -18,11 +18,11 @@ public class CreateMemberRequest {
     private String phoneNumber;
     private MemberType type;
 
-    public Member toMember() {
+    public Member toMember(String encryptedPassword) {
         return new Member(
                 name,
                 email,
-                password,
+                encryptedPassword,
                 phoneNumber,
                 type
         );
