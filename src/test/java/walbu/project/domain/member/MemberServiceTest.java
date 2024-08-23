@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import walbu.project.common.error.exception.MemberNotFoundException;
 import walbu.project.common.error.exception.SameNameMemberExistsException;
 import walbu.project.domain.member.data.Member;
 import walbu.project.domain.member.data.MemberType;
@@ -76,6 +77,26 @@ public class MemberServiceTest {
         assertThatThrownBy(() -> memberService.createMember(request))
                 .isInstanceOf(SameNameMemberExistsException.class)
                 .hasMessage(exception.getMessage());
+    }
+
+    @Test
+    @DisplayName(" 회원 가입하면 비밀번호가 암호화된다.")
+    void signingUpEncryptsPassword() {
+        // given
+        CreateMemberRequest request = new CreateMemberRequest(
+                "name",
+                "email",
+                "password",
+                "01012341234",
+                MemberType.STUDENT
+        );
+
+        // when
+        CreateMemberResponse response = memberService.createMember(request);
+
+        // then
+        Member member = memberRepository.findById(response.getMemberId()).orElseThrow(MemberNotFoundException::new);
+        assertThat(member.getPassword()).isNotEqualTo(request.getPassword());
     }
 
 }
