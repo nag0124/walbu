@@ -15,7 +15,7 @@ public class MemberIntegrationTest extends IntegrationTest {
 
     @Test
     @DisplayName("회원 가입한다.")
-    void readMember() {
+    void signUp() {
         // given
         CreateMemberRequest request = new CreateMemberRequest(
                 "nag",
