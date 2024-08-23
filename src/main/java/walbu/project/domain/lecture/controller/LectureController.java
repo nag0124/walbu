@@ -1,5 +1,7 @@
 package walbu.project.domain.lecture.controller;
 
+import javax.validation.Valid;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,7 +22,7 @@ public class LectureController {
     private final LectureService lectureService;
 
     @PostMapping
-    public ResponseEntity<CreateLectureResponse> createLecture(@RequestBody CreateLectureRequest request) {
+    public ResponseEntity<CreateLectureResponse> createLecture(@RequestBody @Valid CreateLectureRequest request) {
         CreateLectureResponse response = lectureService.createLecture(request);
 
         return ResponseEntity
