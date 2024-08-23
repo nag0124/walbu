@@ -2,6 +2,7 @@ package walbu.project.domain.member;
 
 import static org.assertj.core.api.Assertions.*;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,6 @@ import walbu.project.domain.member.data.dto.CreateMemberRequest;
 import walbu.project.domain.member.data.dto.CreateMemberResponse;
 import walbu.project.domain.member.repository.MemberRepository;
 import walbu.project.domain.member.service.MemberService;
-import walbu.project.util.TestDataFactory;
 
 @SpringBootTest
 public class MemberServiceTest {
@@ -24,6 +24,11 @@ public class MemberServiceTest {
 
     @Autowired
     MemberRepository memberRepository;
+
+    @AfterEach
+    void cleanUp() {
+        memberRepository.deleteAllInBatch();
+    }
 
     @Test
     @DisplayName("회원 저장에 성공하면 아이디가 부여된다.")
