@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import walbu.project.common.error.exception.SameNameMemberExistsException;
 import walbu.project.domain.member.data.Member;
 import walbu.project.domain.member.data.dto.CreateMemberRequest;
 import walbu.project.domain.member.data.dto.CreateMemberResponse;
@@ -17,6 +18,9 @@ public class MemberService {
 
     @Transactional
     public CreateMemberResponse createMember(CreateMemberRequest request) {
+        if (memberRepository.existsByName(request.getName())) {
+            throw new SameNameMemberExistsException();
+        }
         Member member = request.toMember();
 
         memberRepository.save(member);
