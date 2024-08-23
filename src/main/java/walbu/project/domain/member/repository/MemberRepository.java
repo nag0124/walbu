@@ -8,4 +8,6 @@ import walbu.project.domain.member.data.Member;
 @Repository
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
+    boolean existsByName(String name);
+
 }

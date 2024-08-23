@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import walbu.project.common.error.exception.SameNameMemberExistsException;
 import walbu.project.domain.member.data.Member;
 import walbu.project.domain.member.data.MemberType;
 import walbu.project.domain.member.data.dto.CreateMemberRequest;
@@ -64,11 +65,12 @@ public class MemberServiceTest {
                 , MemberType.STUDENT
         );
 
-        // when
-        CreateMemberResponse response = memberService.createMember(request);
+        SameNameMemberExistsException exception = new SameNameMemberExistsException();
 
-        // then
-        assertThat(response.getMemberId()).isNotNull();
+        // when & then
+        assertThatThrownBy(() -> memberService.createMember(request))
+                .isInstanceOf(SameNameMemberExistsException.class)
+                .hasMessage(exception.getMessage());
     }
 
 }
