@@ -2,6 +2,7 @@ package walbu.project.domain.lecture;
 
 import static org.assertj.core.api.Assertions.*;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,8 +11,11 @@ import org.springframework.test.context.ActiveProfiles;
 
 import walbu.project.common.error.exception.ApiException;
 import walbu.project.common.error.exception.MemberNotFoundException;
+import walbu.project.common.error.exception.SameNameLectureExistsException;
+import walbu.project.domain.lecture.data.Lecture;
 import walbu.project.domain.lecture.data.dto.CreateLectureRequest;
 import walbu.project.domain.lecture.data.dto.CreateLectureResponse;
+import walbu.project.domain.lecture.repository.LectureRepository;
 import walbu.project.domain.lecture.service.LectureService;
 import walbu.project.domain.member.data.Member;
 import walbu.project.domain.member.data.MemberType;
@@ -26,6 +30,9 @@ public class LectureServiceTest {
 
     @Autowired
     MemberRepository memberRepository;
+
+    @Autowired
+    LectureRepository lectureRepository;
 
     @Test
     @DisplayName("강의를 생성한다.")
@@ -69,6 +76,42 @@ public class LectureServiceTest {
         // when & then
         assertThatThrownBy(() -> lectureService.createLecture(request))
                 .isInstanceOf(MemberNotFoundException.class)
+                .hasMessage(exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("이름이 같은 강의는 개설할 수 없다.")
+    void cantCreateSameNameLecture() {
+        // given
+        Member member = new Member(
+                "nag",
+                "nag@walbu.com"
+                , "1q2w3e4r!",
+                "01012341234",
+                MemberType.INSTRUCTOR
+        );
+        memberRepository.save(member);
+
+        Lecture lecture = new Lecture(
+                member,
+                "나그와 함께하는 부동산",
+                20000,
+                20
+        );
+        lectureRepository.save(lecture);
+
+        CreateLectureRequest request = new CreateLectureRequest(
+                member.getId(),
+                lecture.getName(),
+                10000,
+                10
+        );
+
+        ApiException exception = new SameNameLectureExistsException();
+
+        // when & then
+        assertThatThrownBy(() -> lectureService.createLecture(request))
+                .isInstanceOf(SameNameLectureExistsException.class)
                 .hasMessage(exception.getMessage());
     }
 
