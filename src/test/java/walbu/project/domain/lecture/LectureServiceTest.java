@@ -34,11 +34,11 @@ public class LectureServiceTest {
     @Autowired
     LectureRepository lectureRepository;
 
-//    @AfterEach
-//    void cleanUp() {
-//        lectureRepository.deleteAllInBatch();
-//        memberRepository.deleteAllInBatch();
-//    }
+    @AfterEach
+    void cleanUp() {
+        lectureRepository.deleteAllInBatch();
+        memberRepository.deleteAllInBatch();
+    }
 
     @Test
     @DisplayName("강의를 생성한다.")
