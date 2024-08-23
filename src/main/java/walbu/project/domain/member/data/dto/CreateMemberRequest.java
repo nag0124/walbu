@@ -1,24 +1,22 @@
 package walbu.project.domain.member.data.dto;
 
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import walbu.project.domain.member.data.Member;
 import walbu.project.domain.member.data.MemberType;
 
-@RequiredArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 @Getter
 public class CreateMemberRequest {
 
-    private final String name;
-    private final String email;
-    private final String password;
-    private final String phoneNumber;
-    private final MemberType type;
+    private String name;
+    private String email;
+    private String password;
+    private String phoneNumber;
+    private MemberType type;
 
     public Member toMember() {
         return new Member(
