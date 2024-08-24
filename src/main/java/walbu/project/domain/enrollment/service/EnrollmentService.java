@@ -1,5 +1,8 @@
 package walbu.project.domain.enrollment.service;
 
+import java.util.concurrent.CompletableFuture;
+
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +44,13 @@ public class EnrollmentService {
         Enrollment enrollment = new Enrollment(student, lecture);
         enrollmentRepository.save(enrollment);
         return CreateEnrollmentResponse.from(enrollment.getLecture().getId(), EnrollmentResultType.SUCCESS);
+    }
+
+    @Transactional
+    @Async
+    public CompletableFuture<CreateEnrollmentResponse> createEnrollmentAsync(CreateEnrollmentRequest request) {
+        CreateEnrollmentResponse response = createEnrollment(request);
+        return CompletableFuture.completedFuture(response);
     }
 
     private void checkEnrollmentExists(CreateEnrollmentRequest request) {
