@@ -125,7 +125,7 @@ public class EnrollmentServiceTest {
         CreateEnrollmentResponse response = enrollmentService.createEnrollment(request);
 
         // then
-        assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.CONFLICT);
         assertThat(response.getLectureId()).isEqualTo(lecture.getId());
         assertThat(response.getMessage()).isEqualTo(EnrollmentResultType.FAIL.getMessage());
     }
