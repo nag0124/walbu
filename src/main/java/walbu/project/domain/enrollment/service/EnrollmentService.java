@@ -1,6 +1,7 @@
 package walbu.project.domain.enrollment.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import walbu.project.common.error.exception.InstructorCantEnrollHisLectureException;
@@ -25,6 +26,7 @@ public class EnrollmentService {
     private final MemberRepository memberRepository;
     private final LectureRepository lectureRepository;
 
+    @Transactional
     public CreateEnrollmentResponse createEnrollment(CreateEnrollmentRequest request) {
         checkStudentIsInstructor(request);
         checkEnrollmentExists(request);
@@ -32,7 +34,7 @@ public class EnrollmentService {
         Member student = memberRepository.findById(request.getStudentId()).orElseThrow(MemberNotFoundException::new);
         Lecture lecture = lectureRepository.findById(request.getLectureId()).orElseThrow(LectureNotFoundException::new);
 
-        if (lecture.getAvailableCount() == 0) {
+        if (!lecture.assignSeat()) {
             return CreateEnrollmentResponse.from(lecture.getId(), EnrollmentResultType.FAIL);
         }
 

@@ -57,4 +57,12 @@ public class Lecture {
         this.availableCount = enrollmentCount;
     }
 
+    public boolean assignSeat() {
+        if (availableCount <= 0) {
+            return false;
+        }
+        availableCount--;
+        return true;
+    }
+
 }
