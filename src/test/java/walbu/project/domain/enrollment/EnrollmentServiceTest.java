@@ -2,6 +2,9 @@ package walbu.project.domain.enrollment;
 
 import static org.assertj.core.api.Assertions.*;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,6 +15,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import walbu.project.common.error.exception.ApiException;
 import walbu.project.common.error.exception.InstructorCantEnrollHisLectureException;
+import walbu.project.common.error.exception.LectureNotFoundException;
 import walbu.project.common.error.exception.MemberEnrolledLectureException;
 import walbu.project.domain.enrollment.data.Enrollment;
 import walbu.project.domain.enrollment.data.EnrollmentResultType;
@@ -40,6 +44,9 @@ public class EnrollmentServiceTest {
 
     @Autowired
     EnrollmentRepository enrollmentRepository;
+
+    @PersistenceContext
+    EntityManager entityManager;
 
     @AfterEach
     void cleanUp() {
@@ -200,6 +207,46 @@ public class EnrollmentServiceTest {
         assertThatThrownBy(() -> enrollmentService.createEnrollment(request))
                 .isInstanceOf(InstructorCantEnrollHisLectureException.class)
                 .hasMessage(exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("강의를 수강하면 수강 가능 인원이 줄어든다.")
+    void enrollmentDecresesAvailableCount() {
+        // given
+        Member student = new Member(
+                "student",
+                "student@walbu.com",
+                "student1",
+                "01012341234",
+                MemberType.STUDENT
+        );
+        memberRepository.save(student);
+
+        Member instructor = new Member(
+                "instructor",
+                "instructor@walbu.com",
+                "instructor1",
+                "01043214321",
+                MemberType.INSTRUCTOR
+        );
+        memberRepository.save(instructor);
+
+        Lecture lecture = new Lecture(
+                instructor,
+                "lecture",
+                10000,
+                10
+        );
+        lectureRepository.save(lecture);
+
+        CreateEnrollmentRequest request = new CreateEnrollmentRequest(student.getId(), lecture.getId());
+
+        // when
+        enrollmentService.createEnrollment(request);
+
+        // then
+        Lecture byId = lectureRepository.findById(request.getLectureId()).orElseThrow(LectureNotFoundException::new);
+        assertThat(byId.getAvailableCount()).isEqualTo(9);
     }
 
 }
