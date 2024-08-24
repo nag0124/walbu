@@ -33,12 +33,12 @@ public class EnrollmentService {
         Lecture lecture = lectureRepository.findById(request.getLectureId()).orElseThrow(LectureNotFoundException::new);
 
         if (lecture.getAvailableCount() == 0) {
-            return CreateEnrollmentResponse.from(lecture, EnrollmentResultType.FAIL);
+            return CreateEnrollmentResponse.from(lecture.getId(), EnrollmentResultType.FAIL);
         }
 
         Enrollment enrollment = new Enrollment(student, lecture);
         enrollmentRepository.save(enrollment);
-        return CreateEnrollmentResponse.from(enrollment.getLecture(), EnrollmentResultType.SUCCESS);
+        return CreateEnrollmentResponse.from(enrollment.getLecture().getId(), EnrollmentResultType.SUCCESS);
     }
 
     private void checkEnrollmentExists(CreateEnrollmentRequest request) {

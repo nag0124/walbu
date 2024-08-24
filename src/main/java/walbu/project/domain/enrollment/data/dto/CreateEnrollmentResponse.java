@@ -2,6 +2,8 @@ package walbu.project.domain.enrollment.data.dto;
 
 import org.springframework.http.HttpStatus;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Getter;
 import walbu.project.domain.enrollment.data.Enrollment;
 import walbu.project.domain.enrollment.data.EnrollmentResultType;
@@ -10,6 +12,7 @@ import walbu.project.domain.lecture.data.Lecture;
 @Getter
 public class CreateEnrollmentResponse {
 
+    @JsonIgnore
     private final HttpStatus status;
     private final Long lectureId;
     private final String message;
@@ -20,10 +23,10 @@ public class CreateEnrollmentResponse {
         this.message = message;
     }
 
-    public static CreateEnrollmentResponse from(Lecture lecture, EnrollmentResultType type) {
+    public static CreateEnrollmentResponse from(Long lectureId, EnrollmentResultType type) {
         return new CreateEnrollmentResponse(
                 type.getStatus(),
-                lecture.getId(),
+                lectureId,
                 type.getMessage()
         );
 
