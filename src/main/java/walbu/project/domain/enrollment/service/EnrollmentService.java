@@ -32,12 +32,12 @@ public class EnrollmentService {
         checkEnrollmentExists(request);
 
         Member student = memberRepository.findById(request.getStudentId()).orElseThrow(MemberNotFoundException::new);
-        Lecture lecture = lectureRepository.findById(request.getLectureId()).orElseThrow(LectureNotFoundException::new);
+        Lecture lecture = lectureRepository.findByIdWithPessimisticLock(request.getLectureId())
+                .orElseThrow(LectureNotFoundException::new);
 
         if (!lecture.assignSeat()) {
             return CreateEnrollmentResponse.from(lecture.getId(), EnrollmentResultType.FAIL);
         }
-
         Enrollment enrollment = new Enrollment(student, lecture);
         enrollmentRepository.save(enrollment);
         return CreateEnrollmentResponse.from(enrollment.getLecture().getId(), EnrollmentResultType.SUCCESS);
