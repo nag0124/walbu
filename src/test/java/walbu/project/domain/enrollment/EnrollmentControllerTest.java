@@ -19,6 +19,7 @@ import walbu.project.domain.enrollment.controller.EnrollmentController;
 import walbu.project.domain.enrollment.data.EnrollmentResultType;
 import walbu.project.domain.enrollment.data.dto.CreateEnrollmentRequest;
 import walbu.project.domain.enrollment.data.dto.CreateEnrollmentResponse;
+import walbu.project.domain.enrollment.service.EnrollmentAsyncManager;
 import walbu.project.domain.enrollment.service.EnrollmentService;
 
 @WebMvcTest(EnrollmentController.class)
@@ -26,6 +27,9 @@ public class EnrollmentControllerTest {
 
     @MockBean
     private EnrollmentService enrollmentService;
+
+    @MockBean
+    private EnrollmentAsyncManager enrollmentAsyncManager;
 
     @Autowired
     private MockMvc mockMvc;
