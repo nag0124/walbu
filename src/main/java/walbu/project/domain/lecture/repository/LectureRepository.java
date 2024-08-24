@@ -13,4 +13,7 @@ public interface LectureRepository extends JpaRepository<Lecture, Long> {
     List<Lecture> findAllByInstructorId(Long instructorId);
 
     boolean existsByName(String name);
+
+    boolean existsByIdAndInstructorId(Long id, Long instructorId);
+
 }
