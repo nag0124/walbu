@@ -1,6 +1,13 @@
 package walbu.project.domain.enrollment;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.hamcrest.Matchers.*;
+
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -10,7 +17,9 @@ import org.springframework.http.HttpStatus;
 
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import io.restassured.response.Response;
 import walbu.project.IntegrationTest;
+import walbu.project.common.error.exception.LectureNotFoundException;
 import walbu.project.domain.enrollment.data.EnrollmentResultType;
 import walbu.project.domain.enrollment.data.dto.CreateEnrollmentRequest;
 import walbu.project.domain.enrollment.repository.EnrollmentRepository;
@@ -19,6 +28,7 @@ import walbu.project.domain.lecture.repository.LectureRepository;
 import walbu.project.domain.member.data.Member;
 import walbu.project.domain.member.data.MemberType;
 import walbu.project.domain.member.repository.MemberRepository;
+import walbu.project.util.TestDataFactory;
 
 public class EnrollmentIntegrationTest extends IntegrationTest {
 
@@ -145,6 +155,136 @@ public class EnrollmentIntegrationTest extends IntegrationTest {
                 .post("/api/enrollments")
                 .then().log().all()
                 .statusCode(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
+    @DisplayName("20자리가 있는 강의의 동시적인 20개의 수강 신청이 다 성공한다.")
+    void enrollTwentySeatsAll() throws InterruptedException {
+        // given
+        int studentCount = 20;
+        int seatCount = 20;
+
+        List<Member> students = TestDataFactory.createStudents(studentCount);
+        memberRepository.saveAll(students);
+
+        Member instructor = new Member(
+                "instructor",
+                "instructor@walbu.com",
+                "1q2w3e4r!",
+                "01043214321",
+                MemberType.INSTRUCTOR
+        );
+        memberRepository.save(instructor);
+
+        Lecture lecture = new Lecture(
+                instructor,
+                "lecture",
+                10000,
+                seatCount
+        );
+        lectureRepository.save(lecture);
+
+        List<CreateEnrollmentRequest> requests = TestDataFactory.createEnrollmentRequests(students, lecture);
+        List<Response> responses = new CopyOnWriteArrayList<>();
+        ExecutorService executorService = Executors.newFixedThreadPool(studentCount);
+        CountDownLatch latch = new CountDownLatch(studentCount);
+
+        // when
+        for (CreateEnrollmentRequest request : requests) {
+            executorService.submit(() -> {
+                try {
+                    Response response = RestAssured
+                            .given()
+                            .contentType(ContentType.JSON)
+                            .accept(ContentType.JSON)
+                            .body(request)
+                            .when()
+                            .post("/api/enrollments")
+                            .then()
+                            .extract().response();
+
+                    responses.add(response);
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+        latch.await();
+        executorService.shutdown();
+
+        // then
+        Lecture afterEnrollment = lectureRepository.findById(lecture.getId()).orElseThrow(LectureNotFoundException::new);
+        long successCount = responses.stream()
+                .filter(response -> response.getStatusCode() == HttpStatus.OK.value())
+                .count();
+
+        assertThat(afterEnrollment.getAvailableCount()).isZero();
+        assertThat(successCount).isEqualTo(seatCount);
+    }
+
+    @Test
+    @DisplayName("6자리가 있는 강의의 동시적인 20개의 수강 신청 중에서 6개는 성공하고 14개는 실패한다.")
+    void enrollSixSeats() throws InterruptedException {
+        // given
+        int studentCount = 20;
+        int seatCount = 6;
+
+        List<Member> students = TestDataFactory.createStudents(studentCount);
+        memberRepository.saveAll(students);
+
+        Member instructor = new Member(
+                "instructor",
+                "instructor@walbu.com",
+                "1q2w3e4r!",
+                "01043214321",
+                MemberType.INSTRUCTOR
+        );
+        memberRepository.save(instructor);
+
+        Lecture lecture = new Lecture(
+                instructor,
+                "lecture",
+                10000,
+                seatCount
+        );
+        lectureRepository.save(lecture);
+
+        List<CreateEnrollmentRequest> requests = TestDataFactory.createEnrollmentRequests(students, lecture);
+        List<Response> responses = new CopyOnWriteArrayList<>();
+        ExecutorService executorService = Executors.newFixedThreadPool(studentCount);
+        CountDownLatch latch = new CountDownLatch(studentCount);
+
+        // when
+        for (CreateEnrollmentRequest request : requests) {
+            executorService.submit(() -> {
+                try {
+                    Response response = RestAssured
+                            .given()
+                            .contentType(ContentType.JSON)
+                            .accept(ContentType.JSON)
+                            .body(request)
+                            .when()
+                            .post("/api/enrollments")
+                            .then()
+                            .extract().response();
+
+                    responses.add(response);
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+        latch.await();
+        executorService.shutdown();
+
+        // then
+        long successCount = responses.stream()
+                .filter(response -> response.getStatusCode() == HttpStatus.OK.value())
+                .count();
+        long failCount = responses.size() - successCount;
+
+        assertThat(successCount).isEqualTo(seatCount);
+        assertThat(failCount).isEqualTo(studentCount - seatCount);
     }
 
 }

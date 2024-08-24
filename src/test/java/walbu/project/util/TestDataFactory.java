@@ -5,6 +5,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import walbu.project.domain.enrollment.data.Enrollment;
+import walbu.project.domain.enrollment.data.dto.CreateEnrollmentRequest;
+import walbu.project.domain.enrollment.data.dto.CreateEnrollmentResponse;
 import walbu.project.domain.lecture.data.Lecture;
 import walbu.project.domain.member.data.Member;
 import walbu.project.domain.member.data.MemberType;
@@ -66,5 +68,25 @@ public class TestDataFactory {
                 .map(lecture -> new Enrollment(member, lecture))
                 .collect(Collectors.toUnmodifiableList());
     }
+
+    public static List<Member> createStudents(int count) {
+        return IntStream.rangeClosed(1, count)
+                .mapToObj(i -> new Member(
+                        "student" + i,
+                        "student" + i + "@walbu.com",
+                        "1q2w3e4r!",
+                        "01012341234",
+                        MemberType.STUDENT
+                ))
+                .collect(Collectors.toUnmodifiableList());
+    }
+
+    public static List<CreateEnrollmentRequest> createEnrollmentRequests(List<Member> students, Lecture lecture) {
+        return students.stream()
+                .map(student -> new CreateEnrollmentRequest(student.getId(), lecture.getId()))
+                .collect(Collectors.toUnmodifiableList());
+
+    }
+
 
 }
