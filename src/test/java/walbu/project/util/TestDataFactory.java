@@ -85,7 +85,26 @@ public class TestDataFactory {
         return students.stream()
                 .map(student -> new CreateEnrollmentRequest(student.getId(), lecture.getId()))
                 .collect(Collectors.toUnmodifiableList());
+    }
 
+    public static List<CreateEnrollmentRequest> createEnrollmentRequests(Member student, List<Lecture> lectures) {
+        return lectures.stream()
+                .map(lecture -> new CreateEnrollmentRequest(student.getId(), lecture.getId()))
+                .collect(Collectors.toUnmodifiableList());
+    }
+
+    public static List<Lecture> createLecturesWithZeroEnrollment(Member instructor, int totalCount, int zeroCount) {
+        return IntStream.rangeClosed(1, totalCount)
+                .mapToObj(i -> {
+                    int seatCount = i <= zeroCount ? 0 : 10;
+                    return new Lecture(
+                            instructor,
+                            "Lecture " + i,
+                            10000,
+                            seatCount
+                    );
+                })
+                .collect(Collectors.toUnmodifiableList());
     }
 
 
