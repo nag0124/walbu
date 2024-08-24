@@ -43,6 +43,9 @@ public class Lecture {
     @Column(nullable = false)
     private Integer enrollmentCount;
 
+    @Column(nullable = false)
+    private Integer availableCount;
+
     @OneToMany(mappedBy = "lecture", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     List<Enrollment> enrollments = new ArrayList<>();
 
@@ -51,6 +54,7 @@ public class Lecture {
         this.name = name;
         this.price = price;
         this.enrollmentCount = enrollmentCount;
+        this.availableCount = enrollmentCount;
     }
 
 }
