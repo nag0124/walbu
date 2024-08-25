@@ -218,7 +218,7 @@ public class EnrollmentIntegrationTest extends IntegrationTest {
                 .filter(response -> response.getStatusCode() == HttpStatus.OK.value())
                 .count();
 
-        assertThat(afterEnrollment.getAvailableCount()).isZero();
+        assertThat(afterEnrollment.getAssignedCount()).isEqualTo(successCount);
         assertThat(successCount).isEqualTo(seatCount);
     }
 

@@ -253,7 +253,7 @@ public class EnrollmentServiceTest {
 
         // then
         Lecture byId = lectureRepository.findById(request.getLectureId()).orElseThrow(LectureNotFoundException::new);
-        assertThat(byId.getAvailableCount()).isEqualTo(9);
+        assertThat(byId.getAssignedCount()).isEqualTo(1);
     }
 
     @Test
@@ -308,7 +308,7 @@ public class EnrollmentServiceTest {
                 .filter(response -> response.getStatus().equals(HttpStatus.OK))
                 .count();
         assertThat(successCount).isEqualTo(seatCount);
-        assertThat(afterEnrollment.getAvailableCount()).isZero();
+        assertThat(afterEnrollment.getAssignedCount()).isEqualTo(successCount);
     }
 
     @Test

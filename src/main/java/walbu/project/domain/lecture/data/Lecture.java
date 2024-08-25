@@ -44,7 +44,7 @@ public class Lecture {
     private Integer enrollmentCount;
 
     @Column(nullable = false)
-    private Integer availableCount;
+    private Integer assignedCount;
 
     @OneToMany(mappedBy = "lecture", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     List<Enrollment> enrollments = new ArrayList<>();
@@ -54,14 +54,14 @@ public class Lecture {
         this.name = name;
         this.price = price;
         this.enrollmentCount = enrollmentCount;
-        this.availableCount = enrollmentCount;
+        this.assignedCount = 0;
     }
 
     public boolean assignSeat() {
-        if (availableCount <= 0) {
+        if (assignedCount >= enrollmentCount) {
             return false;
         }
-        availableCount--;
+        assignedCount++;
         return true;
     }
 
