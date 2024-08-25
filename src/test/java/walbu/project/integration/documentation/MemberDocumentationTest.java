@@ -44,7 +44,8 @@ public class MemberDocumentationTest extends IntegrationTest {
                 .body(request)
                 .filter(document("{class-name}/{method-name}",
                         requestFields(
-                                fieldWithPath("name").type(JsonFieldType.STRING).description("멤버 이름"),
+                                fieldWithPath("name").type(JsonFieldType.STRING).description("멤버 이름")
+                                        .attributes(key("format").value("중복 불가")),
                                 fieldWithPath("email").type(JsonFieldType.STRING).description("멤버 이메일")
                                         .attributes(key("format").value("이메일 양식 ex)nag@walbu.com")),
                                 fieldWithPath("password").type(JsonFieldType.STRING).description("멤버 암호")

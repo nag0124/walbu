@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.restdocs.restassured3.RestAssuredRestDocumentation.*;
+import static org.springframework.restdocs.snippet.Attributes.*;
 
 import java.util.List;
 
@@ -62,7 +63,8 @@ public class LectureDocumentationTest extends IntegrationTest {
                 .filter(document("{class-name}/{method-name}",
                         requestFields(
                                 fieldWithPath("instructorId").type(JsonFieldType.NUMBER).description("강사 아이디"),
-                                fieldWithPath("name").type(JsonFieldType.STRING).description("강의 이름"),
+                                fieldWithPath("name").type(JsonFieldType.STRING).description("강의 이름")
+                                        .attributes(key("format").value("중복 불가")),
                                 fieldWithPath("price").type(JsonFieldType.NUMBER).description("강의 가격"),
                                 fieldWithPath("enrollmentCount").type(JsonFieldType.NUMBER).description("강의 총 인원")
                         ),
