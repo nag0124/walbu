@@ -143,4 +143,26 @@ public class MemberControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    @DisplayName("회원 가입 Request의 비밀번호 유효성 검증에 실패하면 400 응답을 보낸다.")
+    void createInvalidPasswordMember() throws Exception {
+        // given
+        CreateMemberRequest request = new CreateMemberRequest(
+                "nag",
+                "nag@walbu.com",
+                "1111",
+                "01012341234",
+                MemberType.STUDENT
+        );
+
+        // when & then
+        mockMvc.perform(
+                        post("/api/members")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
 }
