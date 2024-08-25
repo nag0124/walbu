@@ -1,4 +1,4 @@
-package walbu.project.domain.enrollment;
+package walbu.project.integration.scenario;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.hamcrest.Matchers.*;
@@ -21,7 +21,6 @@ import walbu.project.IntegrationTest;
 import walbu.project.common.error.exception.LectureNotFoundException;
 import walbu.project.domain.enrollment.data.EnrollmentResultType;
 import walbu.project.domain.enrollment.data.dto.CreateEnrollmentRequest;
-import walbu.project.domain.enrollment.data.dto.CreateEnrollmentResponse;
 import walbu.project.domain.enrollment.repository.EnrollmentRepository;
 import walbu.project.domain.lecture.data.Lecture;
 import walbu.project.domain.lecture.repository.LectureRepository;
@@ -30,7 +29,7 @@ import walbu.project.domain.member.data.MemberType;
 import walbu.project.domain.member.repository.MemberRepository;
 import walbu.project.util.TestDataFactory;
 
-public class EnrollmentIntegrationTest extends IntegrationTest {
+public class EnrollmentScenarioTest extends IntegrationTest {
 
     @Autowired
     MemberRepository memberRepository;
@@ -40,54 +39,6 @@ public class EnrollmentIntegrationTest extends IntegrationTest {
 
     @Autowired
     EnrollmentRepository enrollmentRepository;
-
-    @Test
-    @DisplayName("한 강의의 수강 신청에 성공한다.")
-    void createEnrollment() {
-        Member instructor = new Member(
-                "instructor",
-                "instructor@walbu.com",
-                "1q2w3e4r!",
-                "01012341234",
-                MemberType.INSTRUCTOR
-        );
-        memberRepository.save(instructor);
-
-        Member student = new Member(
-                "student",
-                "student@walbu.com",
-                "1q2w3e4r!",
-                "01043214321",
-                MemberType.STUDENT
-        );
-        memberRepository.save(student);
-
-        Lecture lecture = new Lecture(
-                instructor,
-                "lecture",
-                10000,
-                10
-        );
-        lectureRepository.save(lecture);
-
-        CreateEnrollmentRequest request = new CreateEnrollmentRequest(
-                student.getId(),
-                lecture.getId()
-        );
-
-        // when & then
-        RestAssured
-                .given().log().all()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .body(request)
-                .when()
-                .post("/api/enrollments")
-                .then().log().all()
-                .statusCode(HttpStatus.OK.value())
-                .body("lectureId", equalTo(lecture.getId().intValue()))
-                .body("message", equalTo(EnrollmentResultType.SUCCESS.getMessage()));
-    }
 
     @Test
     @DisplayName("한 강의의 수강 신청에 실패한다.")
@@ -335,58 +286,6 @@ public class EnrollmentIntegrationTest extends IntegrationTest {
                 .filter(message -> message.equals(EnrollmentResultType.SUCCESS.getMessage()))
                 .count();
         assertThat(successCount).isEqualTo(availableCount);
-    }
-
-    @Test
-    @DisplayName("한 사람이 한번에 20개의 강의를 수강 신청할 때, 10개는 성공하고 10개는 실패한다.")
-    void singleStudentEnrollTwentyLecturesAndSucceedTen() {
-        // given
-        int lectureCount = 20;
-        int availableCount = 10;
-
-        Member student = new Member(
-                "student",
-                "student@walbu.com",
-                "1q2w3e4r!",
-                "01012341234",
-                MemberType.STUDENT
-        );
-        memberRepository.save(student);
-
-        Member instructor = new Member(
-                "instructor",
-                "instructor@walbu.com",
-                "instructor1",
-                "01043214321",
-                MemberType.INSTRUCTOR
-        );
-        memberRepository.save(instructor);
-
-        List<Lecture> lectures = TestDataFactory.createLecturesWithZeroEnrollment(instructor, lectureCount, lectureCount - availableCount);
-        lectureRepository.saveAll(lectures);
-
-        List<CreateEnrollmentRequest> requests = TestDataFactory.createEnrollmentRequests(student, lectures);
-
-        // when
-        Response response = RestAssured
-                .given().log().all()
-                .contentType(ContentType.JSON)
-                .body(requests)
-                .when()
-                .post("/api/enrollments/batch")
-                .then().log().all()
-                .statusCode(HttpStatus.OK.value())
-                .extract()
-                .response();
-
-        // then
-        List<String> messages = response.jsonPath().getList("message");
-        long successCount = messages.stream()
-                .filter(message -> message.equals(EnrollmentResultType.SUCCESS.getMessage()))
-                .count();
-        long failCount = lectureCount - successCount;
-        assertThat(successCount).isEqualTo(availableCount);
-        assertThat(failCount).isEqualTo(lectureCount - availableCount);
     }
 
 }

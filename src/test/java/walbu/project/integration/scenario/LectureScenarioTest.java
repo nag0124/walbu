@@ -1,4 +1,4 @@
-package walbu.project.domain.lecture;
+package walbu.project.integration.scenario;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.hamcrest.Matchers.*;
@@ -24,46 +24,13 @@ import walbu.project.domain.member.data.MemberType;
 import walbu.project.domain.member.repository.MemberRepository;
 import walbu.project.util.TestDataFactory;
 
-public class LectureIntegrationTest extends IntegrationTest {
+public class LectureScenarioTest extends IntegrationTest {
 
     @Autowired
     MemberRepository memberRepository;
 
     @Autowired
     LectureRepository lectureRepository;
-
-    @Test
-    @DisplayName("강의를 생성한다.")
-    void createLecture() {
-        // given
-        Member member = new Member(
-                "nag",
-                "nag@walbu.com",
-                "1q2w3e4r!",
-                "01012341234",
-                MemberType.STUDENT
-        );
-        memberRepository.save(member);
-
-        CreateLectureRequest request = new CreateLectureRequest(
-                member.getId(),
-                "나그와 함께하는 부동산",
-                10000,
-                10
-        );
-
-        // when & then
-        RestAssured
-                .given().log().all()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .body(request)
-                .when()
-                .post("/api/lectures")
-                .then().log().all()
-                .statusCode(200)
-                .body("lectureId", notNullValue());
-    }
 
     @Test
     @DisplayName("이름이 같은 강의는 개설하려고 하면 예외가 발생한다.")
