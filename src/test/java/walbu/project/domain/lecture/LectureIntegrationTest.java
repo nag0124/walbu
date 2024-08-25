@@ -1,6 +1,9 @@
 package walbu.project.domain.lecture;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.hamcrest.Matchers.*;
+
+import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,6 +12,7 @@ import org.springframework.http.HttpStatus;
 
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import io.restassured.response.Response;
 import walbu.project.IntegrationTest;
 import walbu.project.common.error.exception.ApiException;
 import walbu.project.common.error.exception.SameNameLectureExistsException;
@@ -18,6 +22,7 @@ import walbu.project.domain.lecture.repository.LectureRepository;
 import walbu.project.domain.member.data.Member;
 import walbu.project.domain.member.data.MemberType;
 import walbu.project.domain.member.repository.MemberRepository;
+import walbu.project.util.TestDataFactory;
 
 public class LectureIntegrationTest extends IntegrationTest {
 
@@ -137,5 +142,141 @@ public class LectureIntegrationTest extends IntegrationTest {
                 .body("message", equalTo("강의 가격은 최소 0원입니다."));
     }
 
+    @Test
+    @DisplayName("Lecture를 최근 등록순으로 가져온다.")
+    void readLecturesInCreatedTimeOrder() {
+        // given
+        Member instructor = new Member(
+                "instructor",
+                "instructor@walbu.com",
+                "1q2w3e4r!",
+                "01012341234",
+                MemberType.INSTRUCTOR
+        );
+        memberRepository.save(instructor);
+
+        List<Lecture> lectures = TestDataFactory.createLectures(instructor, 20);
+        lectureRepository.saveAll(lectures);
+
+        // when & then
+        Response response = RestAssured.given().log().all()
+                .contentType(ContentType.JSON)
+                .when()
+                .queryParam("page", 0)
+                .queryParam("size", 20)
+                .queryParam("sort", "createdTime")
+                .get("/api/lectures")
+                .then().log().all()
+                .statusCode(200)
+                .body("content.size()", is(20))
+                .extract().response();
+
+        List<Integer> lectureIds = response.jsonPath().getList("content.lectureId");
+        for (int i = 0; i < lectureIds.size() - 1; i++) {
+            assertThat(lectureIds.get(i)).isGreaterThan(lectureIds.get(i + 1));
+        }
+    }
+
+    @Test
+    @DisplayName("Lecture를 신청자 많은 순으로 가져온다.")
+    void readLecturesInAssignedCountOrder() {
+        // given
+        Member instructor = new Member(
+                "instructor",
+                "instructor@walbu.com",
+                "1q2w3e4r!",
+                "01012341234",
+                MemberType.INSTRUCTOR
+        );
+        memberRepository.save(instructor);
+
+        List<Lecture> lectures = TestDataFactory.createLectures(instructor, 20);
+        makeAssignCountDuplicate(lectures);
+        lectureRepository.saveAll(lectures);
+
+        // when & then
+        Response response = RestAssured.given().log().all()
+                .contentType(ContentType.JSON)
+                .when()
+                .queryParam("page", 0)
+                .queryParam("size", 20)
+                .queryParam("sort", "assignedCount")
+                .get("/api/lectures")
+                .then().log().all()
+                .statusCode(200)
+                .body("content.size()", is(20))
+                .extract().response();
+
+        List<Integer> assignedCounts = response.jsonPath().getList("content.assignedCount");
+        List<Integer> lectureIds = response.jsonPath().getList("content.lectureId");
+
+        for (int i = 0; i < assignedCounts.size() - 1; i++) {
+            int aheadAssignedCount = assignedCounts.get(i);
+            int behindAssignedCount = assignedCounts.get(i + 1);
+            int aheadLectureId = lectureIds.get(i);
+            int behindLectureId = lectureIds.get(i + 1);
+
+            if (aheadAssignedCount == behindAssignedCount) {
+                assertThat(aheadLectureId).isGreaterThan(behindLectureId);
+            }
+            assertThat(aheadAssignedCount).isGreaterThanOrEqualTo(behindAssignedCount);
+        }
+    }
+
+    @Test
+    @DisplayName("Lecture를 신청률 높은 순으로 가져온다.")
+    void readLecturesInEnrollmentRateOrder() {
+        // given
+        Member instructor = new Member(
+                "instructor",
+                "instructor@walbu.com",
+                "1q2w3e4r!",
+                "01012341234",
+                MemberType.INSTRUCTOR
+        );
+        memberRepository.save(instructor);
+
+        List<Lecture> lectures = TestDataFactory.createLectures(instructor, 20);
+        makeAssignCountDuplicate(lectures);
+        lectureRepository.saveAll(lectures);
+
+        // when & then
+        Response response = RestAssured.given().log().all()
+                .contentType(ContentType.JSON)
+                .when()
+                .queryParam("page", 0)
+                .queryParam("size", 20)
+                .queryParam("sort", "enrollmentRate")
+                .get("/api/lectures")
+                .then().log().all()
+                .statusCode(200)
+                .body("content.size()", is(20))
+                .extract().response();
+
+        List<Integer> assignedCounts = response.jsonPath().getList("content.assignedCount");
+        List<Integer> enrollmentCounts = response.jsonPath().getList("content.enrollmentCount");
+        List<Integer> lectureIds = response.jsonPath().getList("content.lectureId");
+
+        for (int i = 0; i < assignedCounts.size() - 1; i++) {
+            float aheadEnrollmentRate = (float) assignedCounts.get(i) / enrollmentCounts.get(i);
+            float behindEnrollmentRate = (float) assignedCounts.get(i + 1) / enrollmentCounts.get(i + 1);
+            int aheadLectureId = lectureIds.get(i);
+            int behindLectureId = lectureIds.get(i + 1);
+
+            if (aheadEnrollmentRate == behindEnrollmentRate) {
+                assertThat(aheadLectureId).isGreaterThan(behindLectureId);
+            }
+            assertThat(aheadEnrollmentRate).isGreaterThanOrEqualTo(behindEnrollmentRate);
+        }
+    }
+
+    private void makeAssignCountDuplicate(List<Lecture> lectures) {
+        for (int i = lectures.size() - 1; i >= 0; i--) {
+            Lecture lecture = lectures.get(i);
+            for (int j = 0; j <= i / 2; j++) {
+                lecture.assignSeat();
+            }
+        }
+    }
 
 }
