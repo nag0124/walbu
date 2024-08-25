@@ -8,11 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import io.restassured.response.Response;
 import walbu.project.IntegrationTest;
 import walbu.project.common.error.exception.SameNameMemberExistsException;
 import walbu.project.domain.member.data.Member;
 import walbu.project.domain.member.data.MemberType;
 import walbu.project.domain.member.data.dto.CreateMemberRequest;
+import walbu.project.domain.member.data.dto.LoginRequest;
 import walbu.project.domain.member.repository.MemberRepository;
 
 public class MemberIntegrationTest extends IntegrationTest {
@@ -81,5 +83,47 @@ public class MemberIntegrationTest extends IntegrationTest {
                 .statusCode(400)
                 .body("message", equalTo(exception.getMessage()));
     }
+
+    @Test
+    @DisplayName("로그인 한다.")
+    void login() {
+        // given
+        CreateMemberRequest createMemberRequest = new CreateMemberRequest(
+                "nag",
+                "nag@walbu.com",
+                "1q2w3e4r!",
+                "01012341234",
+                MemberType.STUDENT
+        );
+
+        Response response = RestAssured
+                .given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(createMemberRequest)
+                .when()
+                .post("/api/members")
+                .then()
+                .extract()
+                .response();
+
+        int memberId = response.jsonPath().getInt("memberId");
+
+        LoginRequest loginRequest = new LoginRequest("name", "password");
+
+        // when & then
+        RestAssured
+                .given().log().all()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(createMemberRequest)
+                .when()
+                .post("/api/members/login")
+                .then().log().all()
+                .statusCode(200)
+                .body("memberId", equalTo(memberId));
+    }
+
+
 
 }

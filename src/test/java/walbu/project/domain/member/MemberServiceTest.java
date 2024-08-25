@@ -9,11 +9,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import walbu.project.common.error.exception.MemberNotFoundException;
+import walbu.project.common.error.exception.PasswordIsDifferentException;
 import walbu.project.common.error.exception.SameNameMemberExistsException;
 import walbu.project.domain.member.data.Member;
 import walbu.project.domain.member.data.MemberType;
 import walbu.project.domain.member.data.dto.CreateMemberRequest;
 import walbu.project.domain.member.data.dto.CreateMemberResponse;
+import walbu.project.domain.member.data.dto.LoginRequest;
+import walbu.project.domain.member.data.dto.LoginResponse;
 import walbu.project.domain.member.repository.MemberRepository;
 import walbu.project.domain.member.service.MemberService;
 
@@ -97,6 +100,59 @@ public class MemberServiceTest {
         // then
         Member member = memberRepository.findById(response.getMemberId()).orElseThrow(MemberNotFoundException::new);
         assertThat(member.getPassword()).isNotEqualTo(request.getPassword());
+    }
+
+    @Test
+    @DisplayName("로그인 한다.")
+    void login() {
+        // given
+        CreateMemberRequest createMemberRequest = new CreateMemberRequest(
+                "name"
+                ,"email"
+                ,"password"
+                ,"01012341234"
+                , MemberType.STUDENT
+        );
+        Long memberId = memberService.createMember(createMemberRequest).getMemberId();
+
+        LoginRequest request = new LoginRequest("name", "password");
+
+        // when
+        LoginResponse response = memberService.login(request);
+
+        // then
+        assertThat(response.getMemberId()).isEqualTo(memberId);
+    }
+
+    @Test
+    @DisplayName("로그인 요청에서 이름이 DB에 없으면 예외가 발생한다.")
+    void NoMemberLoginFails() {
+        // given
+        LoginRequest request = new LoginRequest("name", "password");
+
+        // when & then
+        assertThatThrownBy(() -> memberService.login(request))
+                .isInstanceOf(MemberNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("로그인 요청의 Password가 멤버의 Password와 다르면 예외가 발생한다.")
+    void differentPasswordFailsLogin() {
+        // given
+        CreateMemberRequest createMemberRequest = new CreateMemberRequest(
+                "name"
+                ,"email"
+                ,"password"
+                ,"01012341234"
+                , MemberType.STUDENT
+        );
+        Long memberId = memberService.createMember(createMemberRequest).getMemberId();
+
+        LoginRequest request = new LoginRequest("name", "password1");
+
+        // when & then
+        assertThatThrownBy(() -> memberService.login(request))
+                .isInstanceOf(PasswordIsDifferentException.class);
     }
 
 }
