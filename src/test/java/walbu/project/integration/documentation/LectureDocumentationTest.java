@@ -61,10 +61,10 @@ public class LectureDocumentationTest extends IntegrationTest {
                 .body(request)
                 .filter(document("{class-name}/{method-name}",
                         requestFields(
-                                fieldWithPath("instructorId").description("강사 아이디"),
-                                fieldWithPath("name").description("강의 이름"),
-                                fieldWithPath("price").description("강의 가격"),
-                                fieldWithPath("enrollmentCount").description("강의 총 인원")
+                                fieldWithPath("instructorId").type(JsonFieldType.NUMBER).description("강사 아이디"),
+                                fieldWithPath("name").type(JsonFieldType.STRING).description("강의 이름"),
+                                fieldWithPath("price").type(JsonFieldType.NUMBER).description("강의 가격"),
+                                fieldWithPath("enrollmentCount").type(JsonFieldType.NUMBER).description("강의 총 인원")
                         ),
                         responseFields(
                                 fieldWithPath("lectureId").type(JsonFieldType.NUMBER).description("개설한 강의 아이디")

@@ -86,8 +86,8 @@ public class EnrollmentDocumentationTest extends IntegrationTest {
                 .body(request)
                 .filter(document("{class-name}/{method-name}",
                         requestFields(
-                                fieldWithPath("studentId").description("멤버 아이디"),
-                                fieldWithPath("lectureId").description("강의 아이디")
+                                fieldWithPath("studentId").type(JsonFieldType.NUMBER).description("멤버 아이디"),
+                                fieldWithPath("lectureId").type(JsonFieldType.NUMBER).description("강의 아이디")
                         ),
                         responseFields(
                                 fieldWithPath("lectureId").type(JsonFieldType.NUMBER).description("수강 신청한 강의 아이디"),
@@ -138,8 +138,8 @@ public class EnrollmentDocumentationTest extends IntegrationTest {
                 .body(requests)
                 .filter(document("{class-name}/{method-name}",
                         requestFields(
-                                fieldWithPath("[].studentId").description("멤버 아이디"),
-                                fieldWithPath("[].lectureId").description("강의 아이디")
+                                fieldWithPath("[].studentId").type(JsonFieldType.NUMBER).description("멤버 아이디"),
+                                fieldWithPath("[].lectureId").type(JsonFieldType.NUMBER).description("강의 아이디")
                         ),
                         responseFields(
                                 fieldWithPath("[].lectureId").type(JsonFieldType.NUMBER).description("수강 신청한 강의 아이디"),
