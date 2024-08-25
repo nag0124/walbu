@@ -1,0 +1,25 @@
+= 월부 API 문서
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+
+== 멤버 API (/api/members)
+=== 회원 가입 (/sign-up)
+operation::member-documentation-test/sign-up[]
+
+=== 로그인 (/login)
+operation::member-documentation-test/login[]
+
+== 강의 API (/api/lectures)
+=== 강의 등록
+operation::lecture-documentation-test/create-lecture[]
+=== 강의 조회
+operation::lecture-documentation-test/read-ordered-lectures[]
+
+== 수강 API (/api/enrollments)
+=== 한 개의 강의 수강
+operation::enrollment-documentation-test/create-enrollment[]
+=== 여러개의 강의 수강 (/batch)
+operation::enrollment-documentation-test/create-enrollments[]
