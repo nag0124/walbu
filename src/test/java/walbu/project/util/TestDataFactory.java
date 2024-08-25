@@ -49,7 +49,7 @@ public class TestDataFactory {
                                 instructor,
                                 "name" + i,
                                 10000,
-                                10
+                                20
                         ))
                 .collect(Collectors.toUnmodifiableList());
     }
@@ -104,6 +104,18 @@ public class TestDataFactory {
                             seatCount
                     );
                 })
+                .collect(Collectors.toUnmodifiableList());
+    }
+
+    public static List<Member> createInstructors(int count) {
+        return IntStream.rangeClosed(1, count)
+                .mapToObj(i -> new Member(
+                        "instructor" + i,
+                        "instructor" + i + "@walbu.com",
+                        "1q2w3e4r",
+                        "01012341234",
+                        MemberType.INSTRUCTOR
+                ))
                 .collect(Collectors.toUnmodifiableList());
     }
 
