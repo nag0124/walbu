@@ -3,6 +3,7 @@ package walbu.project.integration.documentation;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.restassured3.RestAssuredRestDocumentation.*;
+import static org.springframework.restdocs.snippet.Attributes.*;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,8 +14,6 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import walbu.project.IntegrationTest;
-import walbu.project.common.error.exception.SameNameMemberExistsException;
-import walbu.project.domain.member.data.Member;
 import walbu.project.domain.member.data.MemberType;
 import walbu.project.domain.member.data.dto.CreateMemberRequest;
 import walbu.project.domain.member.data.dto.LoginRequest;
@@ -46,10 +45,15 @@ public class MemberDocumentationTest extends IntegrationTest {
                 .filter(document("{class-name}/{method-name}",
                         requestFields(
                                 fieldWithPath("name").type(JsonFieldType.STRING).description("멤버 이름"),
-                                fieldWithPath("email").type(JsonFieldType.STRING).description("멤버 이메일"),
-                                fieldWithPath("password").type(JsonFieldType.STRING).description("멤버 암호"),
+                                fieldWithPath("email").type(JsonFieldType.STRING).description("멤버 이메일")
+                                        .attributes(key("format").value("이메일 양식 ex)nag@walbu.com")),
+                                fieldWithPath("password").type(JsonFieldType.STRING).description("멤버 암호")
+                                        .attributes(key("format").value("6자 이상 8자 이하 " +
+                                                "+\n영문 소문자, 대문자, 숫자 중 최소 두 가지 이상 조합 필요")),
                                 fieldWithPath("phoneNumber").type(JsonFieldType.STRING).description("멤버 핸드폰 번호"),
                                 fieldWithPath("type").type(JsonFieldType.STRING).description("멤버 타입")
+                                        .attributes(key("format").value("STUDENT, INSTRUCTOR 둘 중 하나"))
+
                         ),
                         responseFields(
                                 fieldWithPath("memberId").type(JsonFieldType.NUMBER).description("회원 강입한 멤버 아이디")
