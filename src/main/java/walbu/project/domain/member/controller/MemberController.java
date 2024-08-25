@@ -1,5 +1,7 @@
 package walbu.project.domain.member.controller;
 
+import javax.validation.Valid;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,7 +21,7 @@ public class MemberController {
     private final MemberService memberService;
 
     @PostMapping
-    public ResponseEntity<CreateMemberResponse> createMember(@RequestBody CreateMemberRequest request) {
+    public ResponseEntity<CreateMemberResponse> createMember(@RequestBody @Valid CreateMemberRequest request) {
         CreateMemberResponse response = memberService.createMember(request);
 
         return ResponseEntity
