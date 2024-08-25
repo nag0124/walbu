@@ -12,6 +12,7 @@ import org.springframework.test.context.ActiveProfiles;
 import walbu.project.common.error.exception.ApiException;
 import walbu.project.common.error.exception.MemberNotFoundException;
 import walbu.project.common.error.exception.SameNameLectureExistsException;
+import walbu.project.common.error.exception.StudentCantCreateLectureException;
 import walbu.project.domain.lecture.data.Lecture;
 import walbu.project.domain.lecture.data.dto.CreateLectureRequest;
 import walbu.project.domain.lecture.data.dto.CreateLectureResponse;
@@ -119,6 +120,31 @@ public class LectureServiceTest {
         assertThatThrownBy(() -> lectureService.createLecture(request))
                 .isInstanceOf(SameNameLectureExistsException.class)
                 .hasMessage(exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("학생은 강의를 생성할 수 없다.")
+    void studentCreatesLecture() {
+        // given
+        Member member = new Member(
+                "nag",
+                "nag@walbu.com"
+                , "1q2w3e4r!",
+                "01012341234",
+                MemberType.STUDENT
+        );
+        memberRepository.save(member);
+
+        CreateLectureRequest request = new CreateLectureRequest(
+                member.getId(),
+                "나그와 함께하는 부동산",
+                10000,
+                10
+        );
+
+        // when
+        assertThatThrownBy(() -> lectureService.createLecture(request))
+                .isInstanceOf(StudentCantCreateLectureException.class);
     }
 
 }

@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import walbu.project.common.error.exception.MemberNotFoundException;
 import walbu.project.common.error.exception.SameNameLectureExistsException;
+import walbu.project.common.error.exception.StudentCantCreateLectureException;
 import walbu.project.domain.lecture.data.Lecture;
 import walbu.project.domain.lecture.data.dto.CreateLectureRequest;
 import walbu.project.domain.lecture.data.dto.CreateLectureResponse;
@@ -15,6 +16,7 @@ import walbu.project.domain.lecture.data.dto.ReadLecturePage;
 import walbu.project.domain.lecture.data.dto.ReadLectureResponse;
 import walbu.project.domain.lecture.repository.LectureRepository;
 import walbu.project.domain.member.data.Member;
+import walbu.project.domain.member.data.MemberType;
 import walbu.project.domain.member.repository.MemberRepository;
 
 @Service
@@ -29,6 +31,7 @@ public class LectureService {
         checkNameExists(request.getName());
 
         Member instructor = memberRepository.findById(request.getInstructorId()).orElseThrow(MemberNotFoundException::new);
+        if (instructor.getType().equals(MemberType.STUDENT)) throw new StudentCantCreateLectureException();
         Lecture lecture = request.toLecture(instructor);
 
         lectureRepository.save(lecture);
