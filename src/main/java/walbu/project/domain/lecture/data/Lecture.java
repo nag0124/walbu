@@ -10,9 +10,11 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -46,6 +48,9 @@ public class Lecture {
     @Column(nullable = false)
     private Integer assignedCount;
 
+    @Column(nullable = false)
+    private Float enrollmentRate;
+
     @OneToMany(mappedBy = "lecture", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     List<Enrollment> enrollments = new ArrayList<>();
 
@@ -55,6 +60,7 @@ public class Lecture {
         this.price = price;
         this.enrollmentCount = enrollmentCount;
         this.assignedCount = 0;
+        this.enrollmentRate = 0f;
     }
 
     public boolean assignSeat() {
@@ -62,6 +68,7 @@ public class Lecture {
             return false;
         }
         assignedCount++;
+        enrollmentRate = (float) assignedCount / enrollmentCount;
         return true;
     }
 
