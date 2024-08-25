@@ -9,6 +9,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import walbu.project.common.validation.Password;
 import walbu.project.domain.member.data.Member;
 import walbu.project.domain.member.data.MemberType;
 
@@ -23,6 +24,7 @@ public class CreateMemberRequest {
     @Email(message = "이메일이 유효하지 않은 형식입니다.")
     private String email;
 
+    @Password
     private String password;
 
     @Pattern(regexp = "^01\\d{8,9}$", message = "핸드폰 번호가 유효하지 않은 형식입니다.")
