@@ -7,10 +7,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import walbu.project.common.error.exception.CantFindEncryptionAlgorithmException;
+import walbu.project.common.error.exception.MemberNotFoundException;
+import walbu.project.common.error.exception.PasswordIsDifferentException;
 import walbu.project.common.error.exception.SameNameMemberExistsException;
 import walbu.project.domain.member.data.Member;
 import walbu.project.domain.member.data.dto.CreateMemberRequest;
 import walbu.project.domain.member.data.dto.CreateMemberResponse;
+import walbu.project.domain.member.data.dto.LoginRequest;
+import walbu.project.domain.member.data.dto.LoginResponse;
 import walbu.project.domain.member.repository.MemberRepository;
 
 @Service
@@ -31,6 +35,17 @@ public class MemberService {
 
         memberRepository.save(member);
         return CreateMemberResponse.from(member);
+    }
+
+    @Transactional(readOnly = true)
+    public LoginResponse login(LoginRequest request) {
+        Member member = memberRepository.findByName(request.getName()).orElseThrow(MemberNotFoundException::new);
+        String encrypt = encryptPassword(request.getPassword());
+
+        if (!member.getPassword().equals(encrypt)) {
+            throw new PasswordIsDifferentException();
+        }
+        return LoginResponse.from(member);
     }
 
     private String encryptPassword(String password) {
