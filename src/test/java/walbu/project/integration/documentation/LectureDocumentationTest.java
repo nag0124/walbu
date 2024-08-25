@@ -98,9 +98,9 @@ public class LectureDocumentationTest extends IntegrationTest {
                 .contentType(ContentType.JSON)
                 .filter(document("{class-name}/{method-name}",
                         requestParts(
-                                partWithName("page").description("조회할 페이지").optional(),
-                                partWithName("size").description("조회할 크기").optional(),
-                                partWithName("sort").description("정렬 방식").optional()
+                                partWithName("page").description("조회할 페이지 (기본값: 0)").optional(),
+                                partWithName("size").description("조회할 크기 (기본값: 20)").optional(),
+                                partWithName("sort").description("정렬 방식 +\n종류: createdTime(최신 등록순), +\nassignedCount(등록자 많은순), +\nenrollmentRate(등록률 높은 순) +\n기본값: createdTime").optional()
                         ),
                         responseFields(
                                 fieldWithPath("lectures[].lectureId").type(JsonFieldType.NUMBER).description("강의 아이디"),
