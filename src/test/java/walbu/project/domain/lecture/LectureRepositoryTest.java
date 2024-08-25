@@ -7,9 +7,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ActiveProfiles;
 
+import walbu.project.common.config.QueryDslConfig;
 import walbu.project.domain.lecture.data.Lecture;
 import walbu.project.domain.lecture.repository.LectureRepository;
 import walbu.project.domain.member.data.Member;
@@ -19,6 +21,7 @@ import walbu.project.util.TestDataFactory;
 @DataJpaTest
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Import(QueryDslConfig.class)
 public class LectureRepositoryTest {
 
     @Autowired
