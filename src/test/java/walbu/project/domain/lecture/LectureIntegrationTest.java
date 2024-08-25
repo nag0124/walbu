@@ -168,10 +168,10 @@ public class LectureIntegrationTest extends IntegrationTest {
                 .get("/api/lectures")
                 .then().log().all()
                 .statusCode(200)
-                .body("content.size()", is(20))
+                .body("lectures.size()", is(20))
                 .extract().response();
 
-        List<Integer> lectureIds = response.jsonPath().getList("content.lectureId");
+        List<Integer> lectureIds = response.jsonPath().getList("lectures.lectureId");
         for (int i = 0; i < lectureIds.size() - 1; i++) {
             assertThat(lectureIds.get(i)).isGreaterThan(lectureIds.get(i + 1));
         }
@@ -204,11 +204,11 @@ public class LectureIntegrationTest extends IntegrationTest {
                 .get("/api/lectures")
                 .then().log().all()
                 .statusCode(200)
-                .body("content.size()", is(20))
+                .body("lectures.size()", is(20))
                 .extract().response();
 
-        List<Integer> assignedCounts = response.jsonPath().getList("content.assignedCount");
-        List<Integer> lectureIds = response.jsonPath().getList("content.lectureId");
+        List<Integer> assignedCounts = response.jsonPath().getList("lectures.assignedCount");
+        List<Integer> lectureIds = response.jsonPath().getList("lectures.lectureId");
 
         for (int i = 0; i < assignedCounts.size() - 1; i++) {
             int aheadAssignedCount = assignedCounts.get(i);
@@ -250,12 +250,12 @@ public class LectureIntegrationTest extends IntegrationTest {
                 .get("/api/lectures")
                 .then().log().all()
                 .statusCode(200)
-                .body("content.size()", is(20))
+                .body("lectures.size()", is(20))
                 .extract().response();
 
-        List<Integer> assignedCounts = response.jsonPath().getList("content.assignedCount");
-        List<Integer> enrollmentCounts = response.jsonPath().getList("content.enrollmentCount");
-        List<Integer> lectureIds = response.jsonPath().getList("content.lectureId");
+        List<Integer> assignedCounts = response.jsonPath().getList("lectures.assignedCount");
+        List<Integer> enrollmentCounts = response.jsonPath().getList("lectures.enrollmentCount");
+        List<Integer> lectureIds = response.jsonPath().getList("lectures.lectureId");
 
         for (int i = 0; i < assignedCounts.size() - 1; i++) {
             float aheadEnrollmentRate = (float) assignedCounts.get(i) / enrollmentCounts.get(i);

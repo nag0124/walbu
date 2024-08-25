@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 import walbu.project.domain.lecture.data.dto.CreateLectureRequest;
 import walbu.project.domain.lecture.data.dto.CreateLectureResponse;
+import walbu.project.domain.lecture.data.dto.ReadLecturePage;
 import walbu.project.domain.lecture.data.dto.ReadLectureResponse;
 import walbu.project.domain.lecture.service.LectureService;
 
@@ -36,14 +37,14 @@ public class LectureController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<ReadLectureResponse>> readLectures(
+    public ResponseEntity<ReadLecturePage> readLectures(
             @PageableDefault(page = 0, size = 20, sort = "createdTime") Pageable pageable
     ) {
-        Page<ReadLectureResponse> responses = lectureService.readLectures(pageable);
+        ReadLecturePage page = lectureService.readLectures(pageable);
 
         return ResponseEntity
                 .ok()
-                .body(responses);
+                .body(page);
     }
 
 }

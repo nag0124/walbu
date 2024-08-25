@@ -25,16 +25,15 @@ public enum LectureOrderByType {
 
         if (type == null) return CREATED_DATE.orderSpecifiers;
         return type.orderSpecifiers;
-
     }
 
-    private static LectureOrderByType of(String sortingField) {
+    public static LectureOrderByType of(String sortingField) {
         for (LectureOrderByType type : LectureOrderByType.values()) {
             if (type.sortingField.equals(sortingField)) {
                 return type;
             }
         }
-        return null;
+        return CREATED_DATE;
     }
 
 

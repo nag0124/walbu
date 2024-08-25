@@ -17,6 +17,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
 import walbu.project.domain.lecture.data.LectureOrderByType;
+import walbu.project.domain.lecture.data.dto.ReadLecturePage;
 import walbu.project.domain.lecture.data.dto.ReadLectureResponse;
 
 @Repository
@@ -26,7 +27,9 @@ public class LectureCustomRepositoryImpl implements LectureCustomRepository {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public Page<ReadLectureResponse> findPage(Pageable pageable) {
+    public ReadLecturePage findPage(Pageable pageable) {
+        LectureOrderByType orderType = getOrderTypeOf(pageable);
+
         List<ReadLectureResponse> lectures = jpaQueryFactory
                 .select(Projections.constructor(ReadLectureResponse.class,
                         lecture.id,
@@ -40,29 +43,30 @@ public class LectureCustomRepositoryImpl implements LectureCustomRepository {
                 .innerJoin(lecture.instructor)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .orderBy(getOrderSpecifiers(pageable))
+                .orderBy(orderType.getOrderSpecifiers())
                 .fetch();
 
         long total = jpaQueryFactory
                 .selectFrom(lecture)
                 .fetchCount();
 
-        return new PageImpl<>(lectures, pageable, total);
+        PageImpl page = new PageImpl(lectures, pageable, total);
+        return ReadLecturePage.from(page, orderType);
     }
 
-    private OrderSpecifier[] getOrderSpecifiers(Pageable pageable) {
+    private LectureOrderByType getOrderTypeOf(Pageable pageable) {
         Sort sort = pageable.getSort();
         if (pageable.getSort() == null || pageable.getSort().isEmpty()) {
-            return LectureOrderByType.CREATED_DATE.getOrderSpecifiers();
+            return LectureOrderByType.CREATED_DATE;
         }
 
         Sort.Order firstOrder = sort.stream().findFirst().orElse(null);
         if (firstOrder == null) {
-            return LectureOrderByType.CREATED_DATE.getOrderSpecifiers();
+            return LectureOrderByType.CREATED_DATE;
         }
 
         String property = firstOrder.getProperty();
-        return LectureOrderByType.getOrderSpecifiersOf(property);
+        return LectureOrderByType.of(property);
     }
 
 }

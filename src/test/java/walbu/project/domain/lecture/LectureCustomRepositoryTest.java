@@ -17,6 +17,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import walbu.project.common.config.QueryDslConfig;
 import walbu.project.domain.lecture.data.Lecture;
+import walbu.project.domain.lecture.data.dto.ReadLecturePage;
 import walbu.project.domain.lecture.data.dto.ReadLectureResponse;
 import walbu.project.domain.lecture.repository.LectureCustomRepositoryImpl;
 import walbu.project.domain.lecture.repository.LectureRepository;
@@ -59,12 +60,12 @@ public class LectureCustomRepositoryTest {
         PageRequest request = PageRequest.of(0, 20, Sort.by("createdTime"));
 
         // when
-        Page<ReadLectureResponse> responses = lectureCustomRepository.findPage(request);
+        ReadLecturePage responses = lectureCustomRepository.findPage(request);
 
         // then
-        for (int i = 0; i < responses.getContent().size() - 1; i++) {
-            ReadLectureResponse ahead = responses.getContent().get(i);
-            ReadLectureResponse behind = responses.getContent().get(i + 1);
+        for (int i = 0; i < responses.getLectures().size() - 1; i++) {
+            ReadLectureResponse ahead = responses.getLectures().get(i);
+            ReadLectureResponse behind = responses.getLectures().get(i + 1);
 
             assertThat(ahead.getLectureId()).isGreaterThan(behind.getLectureId());
         }
@@ -90,12 +91,12 @@ public class LectureCustomRepositoryTest {
         PageRequest request = PageRequest.of(0, 20, Sort.by("assignedCount"));
 
         // when
-        Page<ReadLectureResponse> responses = lectureCustomRepository.findPage(request);
+        ReadLecturePage responses = lectureCustomRepository.findPage(request);
 
         // then
-        for (int i = 0; i < responses.getContent().size() - 1; i++) {
-            ReadLectureResponse ahead = responses.getContent().get(i);
-            ReadLectureResponse behind = responses.getContent().get(i + 1);
+        for (int i = 0; i < responses.getLectures().size() - 1; i++) {
+            ReadLectureResponse ahead = responses.getLectures().get(i);
+            ReadLectureResponse behind = responses.getLectures().get(i + 1);
 
             assertThat(ahead.getAssignedCount()).isGreaterThan(behind.getAssignedCount());
         }
@@ -121,13 +122,13 @@ public class LectureCustomRepositoryTest {
         PageRequest request = PageRequest.of(0, 20, Sort.by("enrollmentRate"));
 
         // when
-        Page<ReadLectureResponse> responses = lectureCustomRepository.findPage(request);
+        ReadLecturePage responses = lectureCustomRepository.findPage(request);
 
         // then
-        for (int i = 0; i < responses.getContent().size() - 1; i++) {
-            ReadLectureResponse ahead = responses.getContent().get(i);
+        for (int i = 0; i < responses.getLectures().size() - 1; i++) {
+            ReadLectureResponse ahead = responses.getLectures().get(i);
             float aheadRate = (float) ahead.getAssignedCount() / ahead.getEnrollmentCount();
-            ReadLectureResponse behind = responses.getContent().get(i + 1);
+            ReadLectureResponse behind = responses.getLectures().get(i + 1);
             float behindRate = (float) behind.getAssignedCount() / behind.getEnrollmentCount();
 
             assertThat(aheadRate).isGreaterThan(behindRate);
@@ -154,12 +155,12 @@ public class LectureCustomRepositoryTest {
         PageRequest request = PageRequest.of(0, 20, Sort.by("assignedCount"));
 
         // when
-        Page<ReadLectureResponse> responses = lectureCustomRepository.findPage(request);
+        ReadLecturePage responses = lectureCustomRepository.findPage(request);
 
         // then
-        for (int i = 0; i < responses.getContent().size() - 1; i++) {
-            ReadLectureResponse ahead = responses.getContent().get(i);
-            ReadLectureResponse behind = responses.getContent().get(i + 1);
+        for (int i = 0; i < responses.getLectures().size() - 1; i++) {
+            ReadLectureResponse ahead = responses.getLectures().get(i);
+            ReadLectureResponse behind = responses.getLectures().get(i + 1);
 
             if (ahead.getAssignedCount() == behind.getAssignedCount()) {
                 assertThat(ahead.getLectureId()).isGreaterThan(behind.getLectureId());
@@ -188,13 +189,13 @@ public class LectureCustomRepositoryTest {
         PageRequest request = PageRequest.of(0, 20, Sort.by("enrollmentRate"));
 
         // when
-        Page<ReadLectureResponse> responses = lectureCustomRepository.findPage(request);
+        ReadLecturePage responses = lectureCustomRepository.findPage(request);
 
         // then
-        for (int i = 0; i < responses.getContent().size() - 1; i++) {
-            ReadLectureResponse ahead = responses.getContent().get(i);
+        for (int i = 0; i < responses.getLectures().size() - 1; i++) {
+            ReadLectureResponse ahead = responses.getLectures().get(i);
             float aheadRate = (float) ahead.getAssignedCount() / ahead.getEnrollmentCount();
-            ReadLectureResponse behind = responses.getContent().get(i + 1);
+            ReadLectureResponse behind = responses.getLectures().get(i + 1);
             float behindRate = (float) behind.getAssignedCount() / behind.getEnrollmentCount();
 
             if (aheadRate == behindRate) {
@@ -223,12 +224,12 @@ public class LectureCustomRepositoryTest {
         PageRequest request = PageRequest.of(0, 20);
 
         // when
-        Page<ReadLectureResponse> responses = lectureCustomRepository.findPage(request);
+        ReadLecturePage responses = lectureCustomRepository.findPage(request);
 
         // then
-        for (int i = 0; i < responses.getContent().size() - 1; i++) {
-            ReadLectureResponse ahead = responses.getContent().get(i);
-            ReadLectureResponse behind = responses.getContent().get(i + 1);
+        for (int i = 0; i < responses.getLectures().size() - 1; i++) {
+            ReadLectureResponse ahead = responses.getLectures().get(i);
+            ReadLectureResponse behind = responses.getLectures().get(i + 1);
 
             assertThat(ahead.getLectureId()).isGreaterThan(behind.getLectureId());
         }
@@ -253,12 +254,12 @@ public class LectureCustomRepositoryTest {
         PageRequest request = PageRequest.of(0, 20, Sort.by("enrollmentCount"));
 
         // when
-        Page<ReadLectureResponse> responses = lectureCustomRepository.findPage(request);
+        ReadLecturePage responses = lectureCustomRepository.findPage(request);
 
         // then
-        for (int i = 0; i < responses.getContent().size() - 1; i++) {
-            ReadLectureResponse ahead = responses.getContent().get(i);
-            ReadLectureResponse behind = responses.getContent().get(i + 1);
+        for (int i = 0; i < responses.getLectures().size() - 1; i++) {
+            ReadLectureResponse ahead = responses.getLectures().get(i);
+            ReadLectureResponse behind = responses.getLectures().get(i + 1);
 
             assertThat(ahead.getLectureId()).isGreaterThan(behind.getLectureId());
         }
@@ -283,12 +284,12 @@ public class LectureCustomRepositoryTest {
         PageRequest request = PageRequest.of(0, 19, Sort.by("createdTime"));
 
         // when
-        Page<ReadLectureResponse> responses = lectureCustomRepository.findPage(request);
+        ReadLecturePage responses = lectureCustomRepository.findPage(request);
 
         // then
         assertThat(responses.getTotalPages()).isEqualTo(2);
         assertThat(responses.getTotalElements()).isEqualTo(20);
-        assertThat(responses.getContent().size()).isEqualTo(19);
+        assertThat(responses.getLectures().size()).isEqualTo(19);
     }
 
     private void makeAssignCountDistinct(List<Lecture> lectures) {

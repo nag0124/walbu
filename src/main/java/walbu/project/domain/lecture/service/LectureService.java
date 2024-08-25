@@ -11,6 +11,7 @@ import walbu.project.common.error.exception.SameNameLectureExistsException;
 import walbu.project.domain.lecture.data.Lecture;
 import walbu.project.domain.lecture.data.dto.CreateLectureRequest;
 import walbu.project.domain.lecture.data.dto.CreateLectureResponse;
+import walbu.project.domain.lecture.data.dto.ReadLecturePage;
 import walbu.project.domain.lecture.data.dto.ReadLectureResponse;
 import walbu.project.domain.lecture.repository.LectureRepository;
 import walbu.project.domain.member.data.Member;
@@ -35,7 +36,7 @@ public class LectureService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ReadLectureResponse> readLectures(Pageable pageable) {
+    public ReadLecturePage readLectures(Pageable pageable) {
         return lectureRepository.findPage(pageable);
     }
 
