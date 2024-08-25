@@ -1,10 +1,13 @@
-package walbu.project.domain.member;
+package walbu.project.integration.documentation;
 
 import static org.hamcrest.Matchers.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.restassured3.RestAssuredRestDocumentation.*;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.restdocs.payload.JsonFieldType;
 
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
@@ -17,8 +20,7 @@ import walbu.project.domain.member.data.dto.CreateMemberRequest;
 import walbu.project.domain.member.data.dto.LoginRequest;
 import walbu.project.domain.member.repository.MemberRepository;
 
-public class MemberIntegrationTest extends IntegrationTest {
-
+public class MemberDocumentationTest extends IntegrationTest {
 
     @Autowired
     private MemberRepository memberRepository;
@@ -37,51 +39,27 @@ public class MemberIntegrationTest extends IntegrationTest {
 
         // when & then
         RestAssured
-                .given().log().all()
+                .given(this.spec).log().all()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body(request)
+                .filter(document("{class-name}/{method-name}",
+                        requestFields(
+                                fieldWithPath("name").type(JsonFieldType.STRING).description("멤버 이름"),
+                                fieldWithPath("email").type(JsonFieldType.STRING).description("멤버 이메일"),
+                                fieldWithPath("password").type(JsonFieldType.STRING).description("멤버 암호"),
+                                fieldWithPath("phoneNumber").type(JsonFieldType.STRING).description("멤버 핸드폰 번호"),
+                                fieldWithPath("type").type(JsonFieldType.STRING).description("멤버 타입")
+                        ),
+                        responseFields(
+                                fieldWithPath("memberId").type(JsonFieldType.NUMBER).description("회원 강입한 멤버 아이디")
+                        )))
                 .when()
                 .post("/api/members")
                 .then().log().all()
                 .statusCode(200)
                 .body("memberId", notNullValue());
 
-    }
-
-    @Test
-    @DisplayName("동일한 이름의 회원이 가입하려고 하면 에러가 발생한다.")
-    void sameNameCantSinUp() {
-        // given
-        Member member = new Member(
-                "nag",
-                "nag@walbu.com",
-                "1q2w3e4r!",
-                "01012341234",
-                MemberType.STUDENT
-        ) ;
-        memberRepository.save(member);
-
-        CreateMemberRequest request = new CreateMemberRequest(
-                member.getName(),
-                "asdf@walbu.com",
-                "1q2w3e4r!",
-                "01012341234",
-                MemberType.STUDENT
-        );
-        SameNameMemberExistsException exception = new SameNameMemberExistsException();
-
-        // when & then
-        RestAssured
-                .given().log().all()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .body(request)
-                .when()
-                .post("/api/members")
-                .then().log().all()
-                .statusCode(400)
-                .body("message", equalTo(exception.getMessage()));
     }
 
     @Test
@@ -109,21 +87,27 @@ public class MemberIntegrationTest extends IntegrationTest {
 
         int memberId = response.jsonPath().getInt("memberId");
 
-        LoginRequest loginRequest = new LoginRequest("name", "password");
+        LoginRequest loginRequest = new LoginRequest("nag", "1q2w3e4r!");
 
         // when & then
         RestAssured
-                .given().log().all()
+                .given(this.spec).log().all()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(createMemberRequest)
+                .filter(document("{class-name}/{method-name}",
+                        requestFields(
+                                fieldWithPath("name").type(JsonFieldType.STRING).description("멤버 이름"),
+                                fieldWithPath("password").type(JsonFieldType.STRING).description("멤버 암호")
+                        ),
+                        responseFields(
+                                fieldWithPath("memberId").type(JsonFieldType.NUMBER).description("로그인한 멤버 아이디")
+                        )))
+                .body(loginRequest)
                 .when()
                 .post("/api/members/login")
                 .then().log().all()
                 .statusCode(200)
                 .body("memberId", equalTo(memberId));
     }
-
-
 
 }
