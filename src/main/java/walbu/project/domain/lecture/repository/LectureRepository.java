@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 import walbu.project.domain.lecture.data.Lecture;
 
 @Repository
-public interface LectureRepository extends JpaRepository<Lecture, Long> {
+public interface LectureRepository extends JpaRepository<Lecture, Long>, LectureCustomRepository {
 
     List<Lecture> findAllByInstructorId(Long instructorId);
 
