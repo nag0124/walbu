@@ -43,7 +43,7 @@ public class LectureDocumentationTest extends IntegrationTest {
                 "nag@walbu.com",
                 "1q2w3e4r!",
                 "01012341234",
-                MemberType.STUDENT
+                MemberType.INSTRUCTOR
         );
         memberRepository.save(member);
 
