@@ -23,6 +23,12 @@ import walbu.project.domain.enrollment.data.Enrollment;
 import walbu.project.domain.member.data.Member;
 
 @Entity
+@Table(
+        indexes = {
+                @Index(name = "idx_lecture_assigned_count_id", columnList = "assigned_count, lecture_id"),
+                @Index(name = "idx_lecture_enrollment_rate_id", columnList = "enrollment_rate, lecture_id")
+        }
+)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class Lecture {
@@ -42,13 +48,13 @@ public class Lecture {
     @Column(nullable = false)
     private Integer price;
 
-    @Column(nullable = false)
+    @Column(name = "enrollment_count", nullable = false)
     private Integer enrollmentCount;
 
-    @Column(nullable = false)
+    @Column(name = "assigned_count", nullable = false)
     private Integer assignedCount;
 
-    @Column(nullable = false)
+    @Column(name = "enrollment_rate", nullable = false)
     private Float enrollmentRate;
 
     @OneToMany(mappedBy = "lecture", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
