@@ -47,7 +47,7 @@ public class MemberControllerTest {
 
         // when & then
         mockMvc.perform(
-                        post("/api/members")
+                        post("/api/members/sign-up")
                                 .content(objectMapper.writeValueAsString(request))
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
@@ -69,7 +69,7 @@ public class MemberControllerTest {
 
         // when & then
         mockMvc.perform(
-                        post("/api/members")
+                        post("/api/members/sign-up")
                                 .content(objectMapper.writeValueAsString(request))
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
@@ -91,7 +91,7 @@ public class MemberControllerTest {
 
         // when & then
         mockMvc.perform(
-                        post("/api/members")
+                        post("/api/members/sign-up")
                                 .content(objectMapper.writeValueAsString(request))
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
@@ -113,7 +113,7 @@ public class MemberControllerTest {
 
         // when & then
         mockMvc.perform(
-                        post("/api/members")
+                        post("/api/members/sign-up")
                                 .content(objectMapper.writeValueAsString(request))
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
@@ -135,7 +135,7 @@ public class MemberControllerTest {
 
         // when & then
         mockMvc.perform(
-                        post("/api/members")
+                        post("/api/members/sign-up")
                                 .content(objectMapper.writeValueAsString(request))
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
@@ -157,7 +157,7 @@ public class MemberControllerTest {
 
         // when & then
         mockMvc.perform(
-                        post("/api/members")
+                        post("/api/members/sign-up")
                                 .content(objectMapper.writeValueAsString(request))
                                 .contentType(MediaType.APPLICATION_JSON)
                 )

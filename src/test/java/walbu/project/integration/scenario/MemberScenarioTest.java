@@ -50,7 +50,7 @@ public class MemberScenarioTest extends IntegrationTest {
                 .accept(ContentType.JSON)
                 .body(request)
                 .when()
-                .post("/api/members")
+                .post("/api/members/sign-up")
                 .then().log().all()
                 .statusCode(400)
                 .body("message", equalTo(exception.getMessage()));

@@ -55,7 +55,7 @@ public class MemberDocumentationTest extends IntegrationTest {
                                 fieldWithPath("memberId").type(JsonFieldType.NUMBER).description("회원 강입한 멤버 아이디")
                         )))
                 .when()
-                .post("/api/members")
+                .post("/api/members/sign-up")
                 .then().log().all()
                 .statusCode(200)
                 .body("memberId", notNullValue());
@@ -80,7 +80,7 @@ public class MemberDocumentationTest extends IntegrationTest {
                 .accept(ContentType.JSON)
                 .body(createMemberRequest)
                 .when()
-                .post("/api/members")
+                .post("/api/members/sign-up")
                 .then()
                 .extract()
                 .response();
