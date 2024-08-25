@@ -13,6 +13,7 @@ java {
 }
 
 configurations {
+	asciidoctorExt
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
@@ -47,19 +48,29 @@ dependencies {
 	annotationProcessor "jakarta.annotation:jakarta.annotation-api"
 	annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 
+	// Rest Docs
+	asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor'
+	testImplementation 'org.springframework.restdocs:spring-restdocs-restassured'
+	testImplementation 'io.rest-assured:rest-assured'
+
 	// test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
-	testImplementation 'io.rest-assured:rest-assured'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+}
+
+tasks.register('deleteSnippets', Delete) {
+	delete snippetsDir
 }
 
 tasks.named('test') {
-	outputs.dir snippetsDir
+	dependsOn tasks.named('deleteSnippets')
 	useJUnitPlatform()
+	outputs.dir snippetsDir
 }
 
-tasks.named('asciidoctor') {
+asciidoctor {
 	inputs.dir snippetsDir
+	configurations 'asciidoctorExt'
 	dependsOn test
 }
