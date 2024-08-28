@@ -25,3 +25,7 @@ logging:
             sql: trace
       springframework:
         jdbc: trace
+
+jwt:
+  expiration: 5000
+  secret: 4~-l(eSrm3In@tnaIp4M%c[llL(,lD1%@uw4RcxqQXx}&rt0yQ
