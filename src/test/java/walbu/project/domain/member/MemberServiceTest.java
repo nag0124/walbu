@@ -35,7 +35,7 @@ public class MemberServiceTest {
     }
 
     @Test
-    @DisplayName("회원 저장에 성공하면 아이디가 부여된다.")
+    @DisplayName("회원 저장에 성공하면 아이디와 Token을 응답으로 준다.")
     void saveMemberAndGetId() {
         // given
         CreateMemberRequest request = new CreateMemberRequest(
@@ -51,6 +51,7 @@ public class MemberServiceTest {
 
         // then
         assertThat(response.getMemberId()).isNotNull();
+        assertThat(response.getToken()).isNotNull();
     }
 
     @Test
@@ -121,7 +122,7 @@ public class MemberServiceTest {
         LoginResponse response = memberService.login(request);
 
         // then
-        assertThat(response.getMemberId()).isEqualTo(memberId);
+        assertThat(response.getToken()).isNotNull();
     }
 
     @Test

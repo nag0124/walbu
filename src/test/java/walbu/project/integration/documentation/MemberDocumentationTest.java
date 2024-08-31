@@ -7,22 +7,16 @@ import static org.springframework.restdocs.snippet.Attributes.*;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.restdocs.payload.JsonFieldType;
 
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import io.restassured.response.Response;
 import walbu.project.IntegrationTest;
 import walbu.project.domain.member.data.MemberType;
 import walbu.project.domain.member.data.dto.CreateMemberRequest;
 import walbu.project.domain.member.data.dto.LoginRequest;
-import walbu.project.domain.member.repository.MemberRepository;
 
 public class MemberDocumentationTest extends IntegrationTest {
-
-    @Autowired
-    private MemberRepository memberRepository;
 
     @Test
     @DisplayName("회원 가입한다.")
@@ -57,14 +51,15 @@ public class MemberDocumentationTest extends IntegrationTest {
 
                         ),
                         responseFields(
-                                fieldWithPath("memberId").type(JsonFieldType.NUMBER).description("회원 강입한 멤버 아이디")
+                                fieldWithPath("memberId").type(JsonFieldType.NUMBER).description("회원 가입한 멤버 아이디"),
+                                fieldWithPath("token").type(JsonFieldType.STRING).description("발급한 JWT")
                         )))
                 .when()
                 .post("/api/members/sign-up")
                 .then().log().all()
                 .statusCode(200)
-                .body("memberId", notNullValue());
-
+                .body("memberId", notNullValue())
+                .body("token", notNullValue());
     }
 
     @Test
@@ -79,18 +74,12 @@ public class MemberDocumentationTest extends IntegrationTest {
                 MemberType.STUDENT
         );
 
-        Response response = RestAssured
+        RestAssured
                 .given()
                 .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
                 .body(createMemberRequest)
                 .when()
-                .post("/api/members/sign-up")
-                .then()
-                .extract()
-                .response();
-
-        int memberId = response.jsonPath().getInt("memberId");
+                .post("/api/members/sign-up");
 
         LoginRequest loginRequest = new LoginRequest("nag", "1q2w3e4r!");
 
@@ -105,14 +94,14 @@ public class MemberDocumentationTest extends IntegrationTest {
                                 fieldWithPath("password").type(JsonFieldType.STRING).description("멤버 암호")
                         ),
                         responseFields(
-                                fieldWithPath("memberId").type(JsonFieldType.NUMBER).description("로그인한 멤버 아이디")
+                                fieldWithPath("token").type(JsonFieldType.STRING).description("발급한 JWT")
                         )))
                 .body(loginRequest)
                 .when()
                 .post("/api/members/login")
                 .then().log().all()
                 .statusCode(200)
-                .body("memberId", equalTo(memberId));
+                .body("token", notNullValue());
     }
 
 }
