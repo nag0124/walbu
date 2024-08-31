@@ -10,6 +10,7 @@ import walbu.project.common.error.exception.CantFindEncryptionAlgorithmException
 import walbu.project.common.error.exception.MemberNotFoundException;
 import walbu.project.common.error.exception.PasswordIsDifferentException;
 import walbu.project.common.error.exception.SameNameMemberExistsException;
+import walbu.project.common.jwt.JwtProvider;
 import walbu.project.domain.member.data.Member;
 import walbu.project.domain.member.data.dto.CreateMemberRequest;
 import walbu.project.domain.member.data.dto.CreateMemberResponse;
@@ -23,6 +24,7 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final PasswordEncryptor passwordEncryptor;
+    private final JwtProvider jwtProvider;
 
     @Transactional
     public CreateMemberResponse createMember(CreateMemberRequest request) {
@@ -32,9 +34,10 @@ public class MemberService {
 
         String encryptedPassword = encryptPassword(request.getPassword());
         Member member = request.toMember(encryptedPassword);
-
         memberRepository.save(member);
-        return CreateMemberResponse.from(member);
+
+        String token = jwtProvider.createToken(member.getId());
+        return CreateMemberResponse.from(member, token);
     }
 
     @Transactional(readOnly = true)
@@ -45,7 +48,9 @@ public class MemberService {
         if (!member.getPassword().equals(encrypt)) {
             throw new PasswordIsDifferentException();
         }
-        return LoginResponse.from(member);
+
+        String token = jwtProvider.createToken(member.getId());
+        return LoginResponse.from(token);
     }
 
     private String encryptPassword(String password) {

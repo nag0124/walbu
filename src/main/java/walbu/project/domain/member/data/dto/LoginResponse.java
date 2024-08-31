@@ -8,10 +8,10 @@ import walbu.project.domain.member.data.Member;
 @Getter
 public class LoginResponse {
 
-    private final Long memberId;
+    private final String token;
 
-    public static LoginResponse from(Member member) {
-        return new LoginResponse(member.getId());
-    };
+    public static LoginResponse from(String token) {
+        return new LoginResponse(token);
+    }
 
 }
