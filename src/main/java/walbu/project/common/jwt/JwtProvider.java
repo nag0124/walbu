@@ -4,9 +4,6 @@ import java.util.Date;
 import java.util.Map;
 
 import javax.crypto.SecretKey;
-import javax.servlet.http.HttpServletRequest;
-
-import org.springframework.http.HttpHeaders;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -32,6 +29,14 @@ public class JwtProvider {
                 .claims(claims)
                 .signWith(key)
                 .compact();
+    }
+
+    public void validateToken(String token) {
+        Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parse(token);
+
     }
 
 }
