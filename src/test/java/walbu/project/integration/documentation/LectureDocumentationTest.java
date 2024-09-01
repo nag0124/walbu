@@ -2,6 +2,7 @@ package walbu.project.integration.documentation;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.hamcrest.Matchers.*;
+import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.restdocs.restassured3.RestAssuredRestDocumentation.*;
@@ -68,6 +69,9 @@ public class LectureDocumentationTest extends IntegrationTest {
                 .accept(ContentType.JSON)
                 .body(request)
                 .filter(document("{class-name}/{method-name}",
+                        requestHeaders(
+                                headerWithName("Authorization").description("Bearer JWT 토큰")
+                        ),
                         requestFields(
                                 fieldWithPath("instructorId").type(JsonFieldType.NUMBER).description("강사 아이디"),
                                 fieldWithPath("name").type(JsonFieldType.STRING).description("강의 이름")
