@@ -2,6 +2,7 @@ package walbu.project.integration.documentation;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.hamcrest.Matchers.*;
+import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.restdocs.restassured3.RestAssuredRestDocumentation.*;
@@ -15,6 +16,7 @@ import java.util.concurrent.Executors;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.restdocs.payload.JsonFieldType;
 
@@ -23,6 +25,7 @@ import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import walbu.project.IntegrationTest;
 import walbu.project.common.error.exception.LectureNotFoundException;
+import walbu.project.common.jwt.JwtProvider;
 import walbu.project.domain.enrollment.data.EnrollmentResultType;
 import walbu.project.domain.enrollment.data.dto.CreateEnrollmentRequest;
 import walbu.project.domain.enrollment.repository.EnrollmentRepository;
@@ -44,6 +47,9 @@ public class EnrollmentDocumentationTest extends IntegrationTest {
     @Autowired
     EnrollmentRepository enrollmentRepository;
 
+    @Autowired
+    JwtProvider jwtProvider;
+
     @Test
     @DisplayName("한 강의의 수강 신청에 성공한다.")
     void createEnrollment() {
@@ -64,6 +70,7 @@ public class EnrollmentDocumentationTest extends IntegrationTest {
                 MemberType.STUDENT
         );
         memberRepository.save(student);
+        String token = jwtProvider.createToken(student.getId());
 
         Lecture lecture = new Lecture(
                 instructor,
@@ -81,10 +88,14 @@ public class EnrollmentDocumentationTest extends IntegrationTest {
         // when & then
         RestAssured
                 .given(this.spec).log().all()
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body(request)
                 .filter(document("{class-name}/{method-name}",
+                        requestHeaders(
+                                headerWithName("Authorization").description("Bearer JWT")
+                        ),
                         requestFields(
                                 fieldWithPath("studentId").type(JsonFieldType.NUMBER).description("멤버 아이디"),
                                 fieldWithPath("lectureId").type(JsonFieldType.NUMBER).description("강의 아이디")
@@ -116,6 +127,7 @@ public class EnrollmentDocumentationTest extends IntegrationTest {
                 MemberType.STUDENT
         );
         memberRepository.save(student);
+        String token = jwtProvider.createToken(student.getId());
 
         Member instructor = new Member(
                 "instructor",
@@ -134,9 +146,13 @@ public class EnrollmentDocumentationTest extends IntegrationTest {
         // when
         Response response = RestAssured
                 .given(this.spec).log().all()
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                 .contentType(ContentType.JSON)
                 .body(requests)
                 .filter(document("{class-name}/{method-name}",
+                        requestHeaders(
+                                headerWithName("Authorization").description("Bearer JWT")
+                        ),
                         requestFields(
                                 fieldWithPath("[].studentId").type(JsonFieldType.NUMBER).description("멤버 아이디"),
                                 fieldWithPath("[].lectureId").type(JsonFieldType.NUMBER).description("강의 아이디")

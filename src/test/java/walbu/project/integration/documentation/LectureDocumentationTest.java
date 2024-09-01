@@ -12,12 +12,14 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.restdocs.payload.JsonFieldType;
 
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import walbu.project.IntegrationTest;
+import walbu.project.common.jwt.JwtProvider;
 import walbu.project.domain.lecture.data.Lecture;
 import walbu.project.domain.lecture.data.dto.CreateLectureRequest;
 import walbu.project.domain.lecture.repository.LectureRepository;
@@ -34,6 +36,9 @@ public class LectureDocumentationTest extends IntegrationTest {
     @Autowired
     LectureRepository lectureRepository;
 
+    @Autowired
+    JwtProvider jwtProvider;
+
     @Test
     @DisplayName("강의를 생성한다.")
     void createLecture() {
@@ -46,6 +51,7 @@ public class LectureDocumentationTest extends IntegrationTest {
                 MemberType.INSTRUCTOR
         );
         memberRepository.save(member);
+        String token = jwtProvider.createToken(member.getId());
 
         CreateLectureRequest request = new CreateLectureRequest(
                 member.getId(),
@@ -57,6 +63,7 @@ public class LectureDocumentationTest extends IntegrationTest {
         // when & then
         RestAssured
                 .given(this.spec).log().all()
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body(request)

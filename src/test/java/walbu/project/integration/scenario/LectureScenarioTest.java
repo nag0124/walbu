@@ -8,6 +8,7 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 
 import io.restassured.RestAssured;
@@ -16,6 +17,7 @@ import io.restassured.response.Response;
 import walbu.project.IntegrationTest;
 import walbu.project.common.error.exception.ApiException;
 import walbu.project.common.error.exception.SameNameLectureExistsException;
+import walbu.project.common.jwt.JwtProvider;
 import walbu.project.domain.lecture.data.Lecture;
 import walbu.project.domain.lecture.data.dto.CreateLectureRequest;
 import walbu.project.domain.lecture.repository.LectureRepository;
@@ -32,6 +34,9 @@ public class LectureScenarioTest extends IntegrationTest {
     @Autowired
     LectureRepository lectureRepository;
 
+    @Autowired
+    JwtProvider jwtProvider;
+
     @Test
     @DisplayName("이름이 같은 강의는 개설하려고 하면 예외가 발생한다.")
     void createSameNameLecture() {
@@ -44,6 +49,7 @@ public class LectureScenarioTest extends IntegrationTest {
                 MemberType.STUDENT
         );
         memberRepository.save(member);
+        String token = jwtProvider.createToken(member.getId());
 
         Lecture lecture = new Lecture(
                 member,
@@ -64,6 +70,7 @@ public class LectureScenarioTest extends IntegrationTest {
         // when & then
         RestAssured
                 .given().log().all()
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body(request)
@@ -87,6 +94,7 @@ public class LectureScenarioTest extends IntegrationTest {
                 MemberType.STUDENT
         );
         memberRepository.save(member);
+        String token = jwtProvider.createToken(member.getId());
 
         CreateLectureRequest request = new CreateLectureRequest(
                 member.getId(),
@@ -98,6 +106,7 @@ public class LectureScenarioTest extends IntegrationTest {
         // when & then
         RestAssured
                 .given().log().all()
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body(request)

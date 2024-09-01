@@ -8,10 +8,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 
 import io.restassured.RestAssured;
@@ -19,6 +21,7 @@ import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import walbu.project.IntegrationTest;
 import walbu.project.common.error.exception.LectureNotFoundException;
+import walbu.project.common.jwt.JwtProvider;
 import walbu.project.domain.enrollment.data.EnrollmentResultType;
 import walbu.project.domain.enrollment.data.dto.CreateEnrollmentRequest;
 import walbu.project.domain.enrollment.repository.EnrollmentRepository;
@@ -40,6 +43,9 @@ public class EnrollmentScenarioTest extends IntegrationTest {
     @Autowired
     EnrollmentRepository enrollmentRepository;
 
+    @Autowired
+    JwtProvider jwtProvider;
+
     @Test
     @DisplayName("한 강의의 수강 신청에 실패한다.")
     void failToCreateEnrollment() {
@@ -60,6 +66,7 @@ public class EnrollmentScenarioTest extends IntegrationTest {
                 MemberType.STUDENT
         );
         memberRepository.save(student);
+        String token = jwtProvider.createToken(student.getId());
 
         Lecture lecture = new Lecture(
                 instructor,
@@ -77,6 +84,7 @@ public class EnrollmentScenarioTest extends IntegrationTest {
         // when & then
         RestAssured
                 .given().log().all()
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body(request)
@@ -95,10 +103,12 @@ public class EnrollmentScenarioTest extends IntegrationTest {
                 0L,
                 1L
         );
+        String token = jwtProvider.createToken(0L);
 
         // when & then
         RestAssured
                 .given().log().all()
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body(request)
@@ -117,6 +127,9 @@ public class EnrollmentScenarioTest extends IntegrationTest {
 
         List<Member> students = TestDataFactory.createStudents(studentCount);
         memberRepository.saveAll(students);
+        List<String> tokens = students.stream()
+                .map(student -> jwtProvider.createToken(student.getId()))
+                .collect(Collectors.toUnmodifiableList());
 
         Member instructor = new Member(
                 "instructor",
@@ -141,11 +154,15 @@ public class EnrollmentScenarioTest extends IntegrationTest {
         CountDownLatch latch = new CountDownLatch(studentCount);
 
         // when
-        for (CreateEnrollmentRequest request : requests) {
+        for (int i = 0; i < requests.size(); i++) {
+            CreateEnrollmentRequest request = requests.get(i);
+            String token = tokens.get(i);
+
             executorService.submit(() -> {
                 try {
                     Response response = RestAssured
                             .given().log().all()
+                            .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                             .contentType(ContentType.JSON)
                             .accept(ContentType.JSON)
                             .body(request)
@@ -182,6 +199,9 @@ public class EnrollmentScenarioTest extends IntegrationTest {
 
         List<Member> students = TestDataFactory.createStudents(studentCount);
         memberRepository.saveAll(students);
+        List<String> tokens = students.stream()
+                .map(student -> jwtProvider.createToken(student.getId()))
+                .collect(Collectors.toUnmodifiableList());
 
         Member instructor = new Member(
                 "instructor",
@@ -206,11 +226,15 @@ public class EnrollmentScenarioTest extends IntegrationTest {
         CountDownLatch latch = new CountDownLatch(studentCount);
 
         // when
-        for (CreateEnrollmentRequest request : requests) {
+        for (int i = 0; i < requests.size(); i++) {
+            CreateEnrollmentRequest request = requests.get(i);
+            String token = tokens.get(i);
+
             executorService.submit(() -> {
                 try {
                     Response response = RestAssured
                             .given().log().all()
+                            .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                             .contentType(ContentType.JSON)
                             .accept(ContentType.JSON)
                             .body(request)
@@ -253,6 +277,7 @@ public class EnrollmentScenarioTest extends IntegrationTest {
                 MemberType.STUDENT
         );
         memberRepository.save(student);
+        String token = jwtProvider.createToken(student.getId());
 
         Member instructor = new Member(
                 "instructor",
@@ -271,6 +296,7 @@ public class EnrollmentScenarioTest extends IntegrationTest {
         // when
         Response response = RestAssured
                 .given().log().all()
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                 .contentType(ContentType.JSON)
                 .body(requests)
                 .when()
